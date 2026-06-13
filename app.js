@@ -883,11 +883,16 @@ document.addEventListener('DOMContentLoaded', () => {
           ${note.pinned ? '<i class="fa-solid fa-star" style="color: #ffd166;"></i>' : ''}
         </div>
         <div class="sticky-note-body">${escapeHTML(bodyPreview)}</div>
-        <div class="sticky-note-footer" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-          <span>${dateStr}</span>
-          <button class="clay-btn small-btn note-edit-btn">
-            <i class="fa-solid fa-pen" style="font-size:0.6rem;"></i> Edit
-          </button>
+        <div class="sticky-note-footer" style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:6px;">
+          <span style="font-size:0.7rem; opacity:0.8;">${dateStr}</span>
+          <div style="display:flex; gap:5px;">
+            <button class="clay-btn small-btn note-edit-btn">
+              <i class="fa-solid fa-pen" style="font-size:0.6rem;"></i> Edit
+            </button>
+            <button class="clay-btn small-btn note-card-delete-btn" title="Delete note">
+              <i class="fa-solid fa-trash" style="font-size:0.6rem;"></i>
+            </button>
+          </div>
         </div>
       `;
       
@@ -898,6 +903,17 @@ document.addEventListener('DOMContentLoaded', () => {
       sticky.querySelector('.note-edit-btn').addEventListener('click', (e) => {
         e.stopPropagation();
         openNoteEditorModal(note.id);
+      });
+
+      sticky.querySelector('.note-card-delete-btn').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const confirmed = await customConfirm(`Delete "${note.title}"?`, 'Delete Note');
+        if (confirmed) {
+          state.notes = state.notes.filter(n => n.id !== note.id);
+          saveState();
+          renderWhiteboard();
+          updateDashboardStats();
+        }
       });
       
       sticky.addEventListener('dblclick', (e) => {
@@ -911,6 +927,7 @@ document.addEventListener('DOMContentLoaded', () => {
       whiteboardSurface.appendChild(sticky);
     });
   }
+
 
   function openNoteEditorModal(noteId) {
     const note = state.notes.find(n => n.id === noteId);

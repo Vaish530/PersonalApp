@@ -211,6 +211,7 @@ h1, h2, h3, h4, h5 {
   outline: none;
   box-shadow: var(--clay-input-shadow);
   transition: all 0.2s ease;
+  width: 100%;
 }
 
 .clay-input:focus, .clay-textarea:focus {
@@ -222,6 +223,26 @@ h1, h2, h3, h4, h5 {
   resize: vertical;
   min-height: 120px;
 }
+
+/* Dark mode: inputs & textareas need a solid bg so text is legible in modals */
+[data-theme="dark"] .clay-input,
+[data-theme="dark"] .clay-textarea {
+  background: rgba(205, 180, 219, 0.12);
+  color: #cdb4db;
+  border-color: rgba(205, 180, 219, 0.25);
+}
+
+[data-theme="dark"] .clay-input::placeholder,
+[data-theme="dark"] .clay-textarea::placeholder {
+  color: rgba(205, 180, 219, 0.45);
+}
+
+[data-theme="dark"] .clay-input:focus,
+[data-theme="dark"] .clay-textarea:focus {
+  background: rgba(205, 180, 219, 0.18);
+  border-color: #cdb4db;
+}
+
 
 /* Main Container Grid */
 .app-container {
@@ -1706,8 +1727,47 @@ h1, h2, h3, h4, h5 {
 .modal-content {
   width: 90%;
   max-width: 450px;
+  background: var(--sidebar-bg) !important;
   animation: modalScaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
+
+#modal-custom-dialog {
+  z-index: 2000 !important;
+}
+
+/* Dark mode modal: ensure all text inside is visible */
+[data-theme="dark"] .modal-content {
+  background: #0d0d3d !important;
+  color: #cdb4db;
+  border: 1px solid rgba(205, 180, 219, 0.2) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7), var(--clay-inner-shadow) !important;
+}
+
+[data-theme="dark"] .modal-content h3,
+[data-theme="dark"] .modal-content h2,
+[data-theme="dark"] .modal-content p,
+[data-theme="dark"] .modal-content label,
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-body {
+  color: #cdb4db;
+}
+
+[data-theme="dark"] .note-title-field {
+  color: #cdb4db !important;
+}
+
+[data-theme="dark"] .note-title-field::placeholder {
+  color: rgba(205, 180, 219, 0.4) !important;
+}
+
+[data-theme="dark"] .close-btn {
+  color: rgba(205, 180, 219, 0.7);
+}
+
+[data-theme="dark"] #custom-dialog-message {
+  color: #cdb4db;
+}
+
 
 @keyframes modalScaleIn {
   from {
@@ -2838,6 +2898,63 @@ h1, h2, h3, h4, h5 {
 }
 [data-theme="dark"] .note-edit-btn:hover {
   background: rgba(0, 0, 0, 0.12) !important;
+  transform: scale(1.05);
+}
+
+/* Sticky note card direct delete button styling */
+.note-card-delete-btn {
+  padding: 3px 6px !important;
+  font-size: 0.7rem !important;
+  border-radius: 8px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-title);
+  font-weight: 600;
+}
+
+/* For dark color notes (white text/icons) */
+.sticky-note.color-red .note-card-delete-btn,
+.sticky-note.color-tangerine .note-card-delete-btn,
+.sticky-note.color-orange .note-card-delete-btn,
+.sticky-note.color-coral .note-card-delete-btn,
+.sticky-note.color-seagrass .note-card-delete-btn,
+.sticky-note.color-cyan .note-card-delete-btn,
+.sticky-note.color-slate .note-card-delete-btn,
+.sticky-note.color-cerulean .note-card-delete-btn {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: inset 1px 1px 3px rgba(255, 255, 255, 0.3), 1px 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+.sticky-note.color-red .note-card-delete-btn:hover,
+.sticky-note.color-tangerine .note-card-delete-btn:hover,
+.sticky-note.color-orange .note-card-delete-btn:hover,
+.sticky-note.color-coral .note-card-delete-btn:hover,
+.sticky-note.color-seagrass .note-card-delete-btn:hover,
+.sticky-note.color-cyan .note-card-delete-btn:hover,
+.sticky-note.color-slate .note-card-delete-btn:hover,
+.sticky-note.color-cerulean .note-card-delete-btn:hover {
+  background: rgba(255, 65, 68, 0.65) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  transform: scale(1.05);
+}
+
+/* For light color notes (dark text/icons) */
+.sticky-note.color-sun .note-card-delete-btn,
+.sticky-note.color-green .note-card-delete-btn {
+  background: rgba(0, 0, 0, 0.08) !important;
+  color: #1e1b2f !important;
+  border: 1px solid rgba(30, 27, 47, 0.35) !important;
+  box-shadow: inset 1px 1px 3px rgba(255, 255, 255, 0.4), 1px 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+.sticky-note.color-sun .note-card-delete-btn:hover,
+.sticky-note.color-green .note-card-delete-btn:hover {
+  background: rgba(249, 65, 68, 0.2) !important;
+  color: #c1121f !important;
+  border-color: rgba(193, 18, 31, 0.4) !important;
   transform: scale(1.05);
 }
 
