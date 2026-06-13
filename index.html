@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Productivity Hub & GATE Prep</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css?v=10.0">
+
+  <!-- App Logo / Favicon -->
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
+  <!-- SEO / OG Meta -->
+  <meta name="description" content="HubSpace — Your personal academic sanctuary. Organize notes, manage tasks, track GATE CS progress, and stay focused with built-in Pomodoro.">
+  <meta property="og:title" content="HubSpace — Personal Productivity Hub">
+  <meta property="og:description" content="Sticky notes, To-Do lists, GATE syllabus tracker, Pomodoro — all in one beautiful claymorphic workspace.">
+  <meta property="og:image" content="logo.png">
+  <meta name="theme-color" content="#03045e">
+</head>
+<body>
+
+  <!-- Liquid gooey effect filter -->
+  <svg style="display: none;">
+    <defs>
+      <filter id="gooey">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo" />
+        <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- LANDING PAGE HERO SCREEN -->
+  <div class="landing-screen" id="landing-screen">
+    <div class="landing-content">
+      <div class="landing-hero-card clay-card">
+        <div class="logo landing-logo">
+          <img src="logo.png" alt="HubSpace Logo" class="logo-img">
+          <span>HubSpace</span>
+        </div>
+        <h1 class="landing-title">Your Personal Academic Sanctuary</h1>
+        <p class="landing-subtitle">Organize study notes, manage dynamic checklists, record Pomodoro sessions, and track your GATE Computer Science progress in a clean claymorphic workspace.</p>
+        <button class="clay-btn primary landing-cta-btn" id="btn-enter-workspace">
+          Enter HubSpace <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+
+      <!-- 3D Interactive Showcase Scene -->
+      <div class="landing-3d-scene-container" id="landing-3d-container">
+        <div class="landing-3d-scene" id="landing-3d-scene">
+          
+          <!-- Card 1: To-Do Card -->
+          <div class="landing-3d-card card-todo" style="--card-depth: 100px; background-color: var(--bubblegum-pink)">
+            <div class="card-header-3d">
+              <i class="fa-solid fa-list-check"></i>
+              <span>To-Do Tracker</span>
+            </div>
+            <div class="card-body-3d">
+              <div class="dummy-todo-item checked"><i class="fa-solid fa-square-check"></i> Algorithms Revision</div>
+              <div class="dummy-todo-item"><i class="fa-regular fa-square"></i> Practice GATE PYQs</div>
+              <div class="dummy-todo-item"><i class="fa-regular fa-square"></i> Compile OS Notes</div>
+            </div>
+          </div>
+
+          <!-- Card 2: Note Card -->
+          <div class="landing-3d-card card-note" style="--card-depth: 40px; background-color: var(--glaucous)">
+            <div class="card-header-3d">
+              <i class="fa-solid fa-note-sticky"></i>
+              <span>Active Notes</span>
+            </div>
+            <div class="card-body-3d">
+              <h4 style="margin-bottom:4px; font-weight:700;">Master's Theorem</h4>
+              <p style="font-size:0.75rem; opacity:0.85; line-height:1.3;">Solve recurrence relations of style: T(n) = aT(n/b) + f(n)...</p>
+            </div>
+          </div>
+
+          <!-- Card 3: GATE Exam Card -->
+          <div class="landing-3d-card card-gate" style="--card-depth: -20px; background-color: var(--velvet-purple); color: white;">
+            <div class="card-header-3d" style="color:white;">
+              <i class="fa-solid fa-award"></i>
+              <span style="color:white;">GATE CS Prep</span>
+            </div>
+            <div class="card-body-3d">
+              <div style="font-size:1.1rem; font-weight:800; font-family:var(--font-title);">Target: Feb 2027</div>
+              <div style="font-size:0.7rem; opacity:0.8; margin-top:2px;">Complete Syllabus Importer</div>
+            </div>
+          </div>
+
+          <!-- Card 4: Analytics Card -->
+          <div class="landing-3d-card card-stats" style="--card-depth: -80px; background-color: var(--pastel-petal)">
+            <div class="card-header-3d">
+              <i class="fa-solid fa-chart-pie"></i>
+              <span>Daily Progress</span>
+            </div>
+            <div class="card-body-3d">
+              <div style="font-size:0.9rem; font-weight:800; color:var(--velvet-purple)">84% Complete</div>
+              <div class="progress-bar-dummy"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container" style="display: none;">
+    <!-- Sidebar / Navigation -->
+    <aside class="sidebar clay-card" id="app-sidebar">
+      <div class="sidebar-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div class="logo">
+          <img src="logo.png" alt="HubSpace" class="logo-img">
+          <span>HubSpace</span>
+        </div>
+        <button class="clay-btn" id="btn-toggle-sidebar" title="Toggle Sidebar" style="width:30px; height:30px; padding:0; border-radius:8px; display: flex; align-items: center; justify-content: center; box-shadow: var(--clay-btn-shadow);">
+          <i class="fa-solid fa-angles-left" id="sidebar-collapse-icon" style="font-size: 0.8rem;"></i>
+        </button>
+      </div>
+      
+      <!-- Flowing Navigation Menu -->
+      <nav class="nav-menu" id="flowing-nav">
+        <!-- Gooey background layer (only contains the blob) -->
+        <div class="nav-gooey-container">
+          <div class="flowing-blob" id="nav-blob"></div>
+        </div>
+        
+        <!-- Main nav items layer (completely crisp text/icons) -->
+        <div class="nav-links">
+          <button class="nav-item active" data-pane="dashboard" id="btn-dashboard">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Dashboard</span>
+          </button>
+          <button class="nav-item" data-pane="todo" id="btn-todo">
+            <i class="fa-solid fa-list-check"></i>
+            <span>To-Do</span>
+          </button>
+          <button class="nav-item" data-pane="notes" id="btn-notes">
+            <i class="fa-solid fa-note-sticky"></i>
+            <span>Notes</span>
+          </button>
+          <button class="nav-item" data-pane="gate" id="btn-gate">
+            <i class="fa-solid fa-book-bookmark"></i>
+            <span>GATE Prep</span>
+          </button>
+          <button class="nav-item" data-pane="documents" id="btn-documents">
+            <i class="fa-solid fa-folder-open"></i>
+            <span>Documents</span>
+          </button>
+          <button class="nav-item" data-pane="settings" id="btn-settings">
+            <i class="fa-solid fa-gears"></i>
+            <span>Settings</span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Sidebar Pomodoro Widget -->
+      <div class="pomodoro-sidebar-widget clay-card">
+        <div class="pomo-title">Focus Session</div>
+        <div class="pomo-timer-display" id="pomo-time">25:00</div>
+        <div class="pomo-mode" id="pomo-mode-label">Work Time</div>
+        <div class="pomo-controls">
+          <button class="clay-btn pomo-control-btn icon-btn" id="btn-pomo-play" title="Play/Pause">
+            <i class="fa-solid fa-play"></i>
+          </button>
+          <button class="clay-btn pomo-control-btn icon-btn" id="btn-pomo-reset" title="Reset">
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+        </div>
+        <div class="pomo-modes-select">
+          <span class="active" data-mode="work">Work</span>
+          <span data-mode="short">Short Break</span>
+          <span data-mode="long">Long Break</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top header bar -->
+      <header class="top-header clay-card">
+        <div class="welcome-text">
+          <h1 id="greeting">Hello, Scholar!</h1>
+          <p id="date-string">Saturday, June 13, 2026</p>
+        </div>
+        <div class="header-actions">
+          <button class="clay-btn theme-toggle" id="btn-show-landing" title="View Landing Page" style="border-radius: 12px; width:38px; height:38px;">
+            <i class="fa-solid fa-house"></i>
+          </button>
+          <button class="clay-btn theme-toggle" id="theme-toggle-btn" title="Toggle Light/Dark Theme" style="border-radius: 12px; width:38px; height:38px;">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- PANES CONTAINER -->
+      <div class="panes-container">
+        
+        <!-- DASHBOARD PANE -->
+        <section class="pane active" id="pane-dashboard">
+          <div class="dashboard-grid">
+            <!-- Left panel: Subjects 3D Gallery Dome -->
+            <div class="dash-left clay-card" style="display: flex; flex-direction: column;">
+              <div class="dash-card-header">
+                <h2>Workspace Navigation</h2>
+              </div>
+              
+              <div class="dome-gallery-wrapper">
+                <!-- Onboarding overlay -->
+                <div id="gallery-onboarding" class="onboarding-overlay" style="display: none;">
+                  <i class="fa-solid fa-graduation-cap onboarding-icon"></i>
+                  <h3 style="font-weight: 700; margin-bottom: 8px;">My Subjects Gallery</h3>
+                  <p style="font-size: 0.8rem; margin-bottom: 15px; color: var(--text-secondary);">Start your preparation by adding your first academic subject here!</p>
+                  <button class="clay-btn primary" id="btn-onboard-add-subject">
+                    <i class="fa-solid fa-plus"></i> Add Subject
+                  </button>
+                </div>
+
+                <!-- 3D Dome Gallery -->
+                <div class="dome-gallery" id="dome-gallery">
+                  <!-- Injected dynamically via JS -->
+                </div>
+              </div>
+
+              <!-- Card Deck Controls -->
+              <div class="gallery-controls" id="gallery-controls">
+                <button class="clay-btn icon-btn" id="btn-gallery-prev" title="Previous Card" style="width:34px; height:34px; border-radius:10px;">
+                  <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <span class="gallery-instruction">Tap a card to bring it up · click top card to open</span>
+                <button class="clay-btn icon-btn" id="btn-gallery-next" title="Next Card" style="width:34px; height:34px; border-radius:10px;">
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Right panel: Progress metrics and dynamic widgets -->
+            <div class="dash-right">
+              <!-- Productivity rings -->
+              <div class="stats-overview-card clay-card">
+                <h3>Hub Analytics</h3>
+                <div class="metrics-container">
+                  <div class="progress-ring-item">
+                    <div class="svg-container">
+                      <svg width="80" height="80">
+                        <circle class="ring-bg" cx="40" cy="40" r="32"></circle>
+                        <circle class="ring-progress" id="ring-todo" cx="40" cy="40" r="32" stroke-dasharray="201.06" stroke-dashoffset="201.06"></circle>
+                      </svg>
+                      <div class="ring-text" id="ring-todo-text">0%</div>
+                    </div>
+                    <span>To-Dos Done</span>
+                  </div>
+
+                  <div class="progress-ring-item">
+                    <div class="svg-container">
+                      <svg width="80" height="80">
+                        <circle class="ring-bg" cx="40" cy="40" r="32"></circle>
+                        <circle class="ring-progress" id="ring-gate" cx="40" cy="40" r="32" stroke-dasharray="201.06" stroke-dashoffset="201.06"></circle>
+                      </svg>
+                      <div class="ring-text" id="ring-gate-text">0%</div>
+                    </div>
+                    <span>GATE Topics</span>
+                  </div>
+
+                  <div class="progress-ring-item">
+                    <div class="svg-container">
+                      <svg width="80" height="80">
+                        <circle class="ring-bg" cx="40" cy="40" r="32"></circle>
+                        <circle class="ring-progress" id="ring-notes" cx="40" cy="40" r="32" stroke-dasharray="201.06" stroke-dashoffset="201.06"></circle>
+                      </svg>
+                      <div class="ring-text" id="ring-notes-text">0</div>
+                    </div>
+                    <span>Notes Written</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Focus Stats -->
+              <div class="quick-timer-card clay-card">
+                <h3>Focused Studying</h3>
+                <div class="focus-stats">
+                  <div class="focus-stat-item">
+                    <span class="value" id="stats-focus-time">0h 0m</span>
+                    <span class="label">Total Focus Time</span>
+                  </div>
+                  <div class="focus-stat-item">
+                    <span class="value" id="stats-focus-sessions">0</span>
+                    <span class="label">Sessions Completed</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Upcoming / Next Tasks -->
+              <div class="upcoming-tasks-card clay-card">
+                <h3>Crucial Tasks</h3>
+                <div class="upcoming-tasks-list" id="dash-urgent-tasks">
+                  <!-- Injected via JS -->
+                  <div class="empty-placeholder">No urgent tasks. Relax or add some tasks in the To-Do menu!</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TO-DO PANE -->
+        <section class="pane" id="pane-todo">
+          <div class="todo-board clay-card" style="width: 100%;">
+            <div class="todo-board-header">
+              <h2 id="todo-board-title">My Tasks Checklist</h2>
+            </div>
+ 
+            <!-- Add task area -->
+            <div class="add-task-form clay-card" style="margin-bottom: 15px;">
+              <input type="text" id="input-task-name" placeholder="What needs to be done?" class="clay-input">
+              <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 10px;">
+                <div class="priority-selector" style="display: flex; align-items: center; gap: 8px;">
+                  <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">Priority:</label>
+                  <div class="priority-options" style="display: flex; gap: 6px;">
+                    <button class="clay-btn pr-btn active" data-priority="low">Low</button>
+                    <button class="clay-btn pr-btn" data-priority="medium">Medium</button>
+                    <button class="clay-btn pr-btn" data-priority="high">High</button>
+                  </div>
+                </div>
+                <button class="clay-btn add-btn primary" id="btn-add-task">
+                  <i class="fa-solid fa-plus"></i> Add Task
+                </button>
+              </div>
+            </div>
+ 
+            <!-- Task items wrapper -->
+            <div class="tasks-container" id="tasks-list">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+        </section>
+
+        <!-- NOTE PAD PANE (Whiteboard Sticky Notes) -->
+        <section class="pane" id="pane-notes">
+          <div class="whiteboard-container">
+            <div class="whiteboard-toolbar clay-card">
+              <div class="toolbar-left">
+                <h2>Whiteboard Notepad</h2>
+                <span class="board-subtitle">Click a note to edit, or double-click to pin/unpin!</span>
+              </div>
+              <div class="toolbar-actions">
+                <input type="text" id="input-note-search" placeholder="Search stickies..." class="clay-input notes-search" style="margin-bottom: 0;">
+                <button class="clay-btn primary" id="btn-add-note">
+                  <i class="fa-solid fa-plus"></i> Add Sticky
+                </button>
+              </div>
+            </div>
+            
+            <!-- Whiteboard corkboard style surface -->
+            <div class="whiteboard-surface clay-card" id="notes-board-surface">
+              <!-- Sticky notes injected here dynamically as clay cards -->
+            </div>
+          </div>
+        </section>
+
+        <!-- DOCUMENTS PANE -->
+        <section class="pane" id="pane-documents">
+          <div class="documents-layout">
+            <div class="documents-gallery-card clay-card" style="flex-grow: 1; display: flex; flex-direction: column;">
+              <div class="gallery-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Document Vault & Schedules</h2>
+                <input type="text" id="input-doc-search" placeholder="Search files..." class="clay-input search-box" style="margin-bottom: 0;">
+              </div>
+              
+              <div class="documents-grid" id="documents-grid-container">
+                <!-- First grid slot: Upload Card -->
+                <div class="doc-card uploader-card" id="doc-dropzone" style="border: 2px dashed rgba(var(--accent-rgb), 0.45); display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; padding: 24px; min-height: 180px; background: rgba(var(--accent-rgb), 0.02); transition: all 0.2s ease;">
+                  <div class="uploader-inner">
+                    <i class="fa-solid fa-cloud-arrow-up uploader-icon" style="font-size: 2.2rem; margin-bottom: 10px; color: var(--accent);"></i>
+                    <h4 style="font-size: 0.95rem; margin-bottom: 4px; font-weight: 700;">Add Document</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary);">Drop files or click to upload</p>
+                    <input type="file" id="input-doc-file" accept="image/*,application/pdf" style="display: none;">
+                  </div>
+                </div>
+                <!-- Uploaded cards appended dynamically next to it -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- GATE PREP PANE -->
+        <section class="pane" id="pane-gate">
+          <div class="gate-grid">
+            <!-- Header/Countdown -->
+            <div class="gate-hero-card clay-card">
+              <div class="gate-header-flex">
+                <div>
+                  <h2>GATE CS & IT Preparation</h2>
+                  <p>Target: Graduate Aptitude Test in Engineering</p>
+                </div>
+                <div class="gate-countdown-widget clay-card">
+                  <div class="countdown-value" id="gate-countdown-timer">-- Days</div>
+                  <div class="countdown-label">Remaining until Exam (Feb 2027)</div>
+                </div>
+              </div>
+              <div class="gate-progress-banner">
+                <div class="progress-banner-label">
+                  <span>Overall Syllabus Completion</span>
+                  <span id="gate-syllabus-percentage">0%</span>
+                </div>
+                <div class="clay-progress-bar">
+                  <div class="progress-fill" id="gate-syllabus-fill" style="width: 0%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Main GATE Content Area -->
+            <div class="gate-main-layout" style="grid-template-columns: 1fr;">
+              <!-- Syllabus Checklist Tracker -->
+              <div class="gate-tracker-card clay-card" style="width: 100%;">
+                <div class="tracker-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                  <h3>Syllabus Subject Tracker</h3>
+                  <button class="clay-btn small-btn" id="btn-import-gate-syllabus">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Load GATE CS Syllabus
+                  </button>
+                </div>
+
+                <div class="gate-syllabus-container" id="gate-syllabus-list">
+                  <div class="empty-syllabus-placeholder" id="syllabus-empty-state">
+                    <i class="fa-solid fa-graduation-cap large-icon"></i>
+                    <h3>Track your GATE CS Preparation</h3>
+                    <p>Load the official GATE Computer Science syllabus and tick off completed subjects and topics.</p>
+                    <button class="clay-btn" id="btn-import-gate-syllabus-alt">
+                      <i class="fa-solid fa-download"></i> Load Official CS Syllabus
+                    </button>
+                  </div>
+                  <!-- Syllabus subjects injected here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SETTINGS & BACKUP PANE -->
+        <section class="pane" id="pane-settings">
+          <div class="settings-grid">
+            <div class="settings-card clay-card">
+              <h2>Preferences</h2>
+              <div class="settings-section">
+                <h3>Visual Theme Accent</h3>
+                <p>Choose an accent style for your claymorphic theme:</p>
+                <div class="accent-selector">
+                  <button class="accent-btn" data-accent="red" style="background: #f94144;" title="Strawberry Red"></button>
+                  <button class="accent-btn" data-accent="tangerine" style="background: #f3722c;" title="Atomic Tangerine"></button>
+                  <button class="accent-btn" data-accent="orange" style="background: #f8961e;" title="Carrot Orange"></button>
+                  <button class="accent-btn" data-accent="coral" style="background: #f9844a;" title="Coral Glow"></button>
+                  <button class="accent-btn" data-accent="sun" style="background: #f9c74f;" title="Tuscan Sun"></button>
+                  <button class="accent-btn" data-accent="green" style="background: #90be6d;" title="Willow Green"></button>
+                  <button class="accent-btn" data-accent="seagrass" style="background: #43aa8b;" title="Seagrass"></button>
+                  <button class="accent-btn" data-accent="cyan" style="background: #4d908e;" title="Dark Cyan"></button>
+                  <button class="accent-btn" data-accent="slate" style="background: #577590;" title="Blue Slate"></button>
+                  <button class="accent-btn" data-accent="cerulean" style="background: #277da1;" title="Cerulean"></button>
+                </div>
+              </div>
+
+              <div class="settings-section">
+                <h3>Daily Study Goals</h3>
+                <div class="goal-input-row">
+                  <label for="input-daily-pomo-goal">Daily Focus Session Goal (Pomodoros):</label>
+                  <input type="number" id="input-daily-pomo-goal" class="clay-input" min="1" max="20" value="4">
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-card clay-card">
+              <h2>Data Management & Backups</h2>
+              <p>Since your workspace runs completely client-side in the browser, your data is saved in local browser storage. Use the tools below to manage and secure your data.</p>
+              
+              <div class="data-actions-row">
+                <button class="clay-btn primary-btn" id="btn-export-data">
+                  <i class="fa-solid fa-download"></i> Export Data Backup
+                </button>
+                
+                <label class="clay-btn file-input-label" for="btn-import-data-file">
+                  <i class="fa-solid fa-upload"></i> Import Data Backup
+                  <input type="file" id="btn-import-data-file" accept=".json" style="display:none;">
+                </label>
+              </div>
+
+              <div class="danger-zone clay-card">
+                <h3>Danger Zone</h3>
+                <p>Clearing data will delete all your notes, task lists, subjects, and GATE progress tracking permanently.</p>
+                <button class="clay-btn danger" id="btn-clear-all-data">
+                  <i class="fa-solid fa-triangle-exclamation"></i> Clear All Storage
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: ADD SUBJECT -->
+  <div class="modal-backdrop" id="modal-add-subject">
+    <div class="modal-content clay-card">
+      <div class="modal-header">
+        <h3>Add New Subject</h3>
+        <button class="close-btn" id="btn-close-subject-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="input-subject-name">Subject Name</label>
+          <input type="text" id="input-subject-name" placeholder="e.g., Algorithms, Computer Networks" class="clay-input">
+        </div>
+        <div class="form-group">
+          <label>Accent Color</label>
+          <div class="subject-color-selector">
+            <span class="color-dot active" data-color="red" style="background: #f94144;"></span>
+            <span class="color-dot" data-color="tangerine" style="background: #f3722c;"></span>
+            <span class="color-dot" data-color="orange" style="background: #f8961e;"></span>
+            <span class="color-dot" data-color="coral" style="background: #f9844a;"></span>
+            <span class="color-dot" data-color="sun" style="background: #f9c74f;"></span>
+            <span class="color-dot" data-color="green" style="background: #90be6d;"></span>
+            <span class="color-dot" data-color="seagrass" style="background: #43aa8b;"></span>
+            <span class="color-dot" data-color="cyan" style="background: #4d908e;"></span>
+            <span class="color-dot" data-color="slate" style="background: #577590;"></span>
+            <span class="color-dot" data-color="cerulean" style="background: #277da1;"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="clay-btn" id="btn-cancel-subject">Cancel</button>
+        <button class="clay-btn primary" id="btn-save-subject">Create Subject</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL: EDIT NOTE (Whiteboard Sticky Editor) -->
+  <div class="modal-backdrop" id="modal-edit-note">
+    <div class="modal-content clay-card note-editor-modal">
+      <div class="modal-header">
+        <input type="text" id="modal-note-title" placeholder="Title your note..." class="clay-input note-title-field">
+        <button class="close-btn" id="btn-close-note-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <textarea id="modal-note-body" placeholder="Write something beautiful..." class="clay-textarea note-textarea"></textarea>
+        </div>
+        <div class="editor-row" style="display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-top: 10px;">
+          <div class="form-group" style="flex-grow: 1;">
+            <label style="font-size: 0.8rem; font-weight: 700;">Color Sticky</label>
+            <div class="note-color-picker" id="modal-note-colors" style="display: flex; gap: 8px; margin-top: 5px;">
+              <!-- Color circles populated dynamically -->
+            </div>
+          </div>
+          <div class="form-group" style="align-items: flex-end;">
+            <label style="font-size: 0.8rem; font-weight: 700;">Pin Note</label>
+            <button class="clay-btn icon-btn" id="modal-btn-pin" title="Pin Note" style="width: 36px; height: 36px;">
+              <i class="fa-regular fa-star"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; width: 100%;">
+        <button class="clay-btn danger" id="modal-btn-delete"><i class="fa-solid fa-trash"></i> Delete</button>
+        <div style="display: flex; gap: 10px;">
+          <button class="clay-btn" id="modal-btn-cancel">Cancel</button>
+          <button class="clay-btn primary" id="modal-btn-save">Save Note</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DOCUMENT VIEWER -->
+  <div class="modal-backdrop" id="modal-doc-viewer">
+    <div class="modal-content clay-card doc-viewer-modal" style="max-width: 800px; width: 95%;">
+      <div class="modal-header">
+        <h3 id="doc-viewer-title">Document Viewer</h3>
+        <button class="close-btn" id="btn-close-doc-viewer">&times;</button>
+      </div>
+      <div class="modal-body" id="doc-viewer-content" style="min-height: 400px; display: flex; align-items: center; justify-content: center; overflow: auto; background: rgba(0,0,0,0.03); border-radius: 16px; padding: 10px;">
+        <!-- Image or PDF will be loaded here -->
+      </div>
+      <div class="modal-footer">
+        <button class="clay-btn" id="btn-close-doc-viewer-alt">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CUSTOM DIALOG (Alert/Confirm replacement) -->
+  <div class="modal-backdrop" id="modal-custom-dialog">
+    <div class="modal-content clay-card custom-dialog-modal" style="max-width: 400px; width: 90%; text-align: center; display: flex; flex-direction: column; gap: 15px;">
+      <div class="modal-header" style="justify-content: center; border-bottom: 1px dashed rgba(var(--accent-rgb, 3, 4, 94), 0.15); padding-bottom: 10px;">
+        <h3 id="custom-dialog-title" style="font-size: 1.15rem; font-weight: 800;">Alert</h3>
+      </div>
+      <div class="modal-body" style="padding: 10px 0;">
+        <p id="custom-dialog-message" style="font-size: 0.9rem; line-height: 1.5; color: var(--text-primary);"></p>
+        <div id="custom-dialog-input-container" style="display: none; margin-top: 15px;">
+          <input type="text" id="custom-dialog-input" class="clay-input" style="width: 100%; text-align: center;">
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: center; gap: 12px; width: 100%; border-top: none; padding-top: 0;">
+        <button class="clay-btn" id="custom-dialog-btn-cancel">Cancel</button>
+        <button class="clay-btn primary" id="custom-dialog-btn-ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Background audio for Pomodoro -->
+  <audio id="audio-alarm" src="https://assets.mixkit.co/active_storage/sfx/911/911-84.wav" preload="auto"></audio>
+
+  <!-- Application logic scripts -->
+  <script src="dome-gallery.js?v=10.0"></script>
+  <script src="app.js?v=10.0"></script>
+
+
+</body>
+</html>

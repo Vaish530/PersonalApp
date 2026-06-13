@@ -1,0 +1,24 @@
+{
+  "short_name": "HubSpace",
+  "name": "HubSpace Personal Hub & GATE Prep",
+  "description": "Your claymorphic workspace for daily checklists, whiteboard sticky notes, documents vault, and GATE Exam tracker.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f3f6fa",
+  "theme_color": "#277da1",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/192/9511/9511674.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/9511/9511674.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
