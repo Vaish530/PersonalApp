@@ -351,20 +351,40 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dashPomoTimerDisplay) dashPomoTimerDisplay.textContent = timeText;
   }
 
+  function isNotificationSupported() {
+    try {
+      return ('Notification' in window && typeof window.Notification !== 'undefined');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function isNotificationPermissionGranted() {
+    try {
+      return isNotificationSupported() && window.Notification.permission === 'granted';
+    } catch (e) {
+      return false;
+    }
+  }
+
   function triggerFocusNotification(action) {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      const modeNames = { work: 'Work Session', short: 'Short Break', long: 'Long Break' };
-      const modeLabel = modeNames[pomoCurrentMode] || 'Focus Session';
-      if (action === 'start') {
-        new Notification('Focus Session Started', {
-          body: `Focus session (${modeLabel}) has started. Stay focused!`,
-          icon: 'logo.png'
-        });
-      } else if (action === 'stop') {
-        new Notification('Focus Session Stopped', {
-          body: 'Focus session has been stopped or paused.',
-          icon: 'logo.png'
-        });
+    if (isNotificationPermissionGranted()) {
+      try {
+        const modeNames = { work: 'Work Session', short: 'Short Break', long: 'Long Break' };
+        const modeLabel = modeNames[pomoCurrentMode] || 'Focus Session';
+        if (action === 'start') {
+          new window.Notification('Focus Session Started', {
+            body: `Focus session (${modeLabel}) has started. Stay focused!`,
+            icon: 'logo.png'
+          });
+        } else if (action === 'stop') {
+          new window.Notification('Focus Session Stopped', {
+            body: 'Focus session has been stopped or paused.',
+            icon: 'logo.png'
+          });
+        }
+      } catch (e) {
+        console.warn('Failed to send focus notification:', e);
       }
     }
   }
@@ -392,7 +412,9 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         clearInterval(pomoTimer);
         pomoIsRunning = false;
-        alarmSound.play().catch(err => console.log('Audio playback prevented', err));
+        if (alarmSound) {
+          alarmSound.play().catch(err => console.log('Audio playback prevented', err));
+        }
         
         // Handle session transition
         handleSessionEnd();
@@ -445,19 +467,30 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function showNotification(title, body) {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, {
-        body: body,
-        icon: 'logo.png'
-      });
+    if (isNotificationPermissionGranted()) {
+      try {
+        new window.Notification(title, {
+          body: body,
+          icon: 'logo.png'
+        });
+      } catch (e) {
+        console.warn('Failed to send notification:', e);
+        customAlert(body, title);
+      }
     } else {
       customAlert(body, title);
     }
   }
 
   // Request notifications permission on load
-  if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
+  if (isNotificationSupported()) {
+    try {
+      if (window.Notification.permission === 'default') {
+        window.Notification.requestPermission().catch(err => console.log('Notification permission request rejected', err));
+      }
+    } catch (e) {
+      console.warn('Failed to request notifications permission:', e);
+    }
   }
 
   // Setup recurring notifications for to-do items by priority
@@ -483,17 +516,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const pending = state.todos.filter(t => !t.completed && t.priority === priority);
     if (pending.length === 0) return;
 
-    if ('Notification' in window && Notification.permission === 'granted') {
-      const labelMap = { high: 'High', medium: 'Medium', low: 'Low' };
-      const priorityLabel = labelMap[priority];
-      const count = pending.length;
-      const names = pending.slice(0, 3).map(t => t.name).join(', ');
-      const extra = count > 3 ? ` and ${count - 3} more` : '';
+    if (isNotificationPermissionGranted()) {
+      try {
+        const labelMap = { high: 'High', medium: 'Medium', low: 'Low' };
+        const priorityLabel = labelMap[priority];
+        const count = pending.length;
+        const names = pending.slice(0, 3).map(t => t.name).join(', ');
+        const extra = count > 3 ? ` and ${count - 3} more` : '';
 
-      new Notification(`${priorityLabel} Priority Tasks Reminder`, {
-        body: `You have ${count} pending ${priorityLabel.toLowerCase()} priority task(s): ${names}${extra}.`,
-        icon: 'logo.png'
-      });
+        new window.Notification(`${priorityLabel} Priority Tasks Reminder`, {
+          body: `You have ${count} pending ${priorityLabel.toLowerCase()} priority task(s): ${names}${extra}.`,
+          icon: 'logo.png'
+        });
+      } catch (e) {
+        console.warn('Failed to send task reminder notification:', e);
+      }
     }
   }
 
