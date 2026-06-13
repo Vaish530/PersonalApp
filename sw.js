@@ -3,7 +3,7 @@
  * Offline Caching & Background Operations
  */
 
-const CACHE_NAME = 'hubspace-cache-v13';
+const CACHE_NAME = 'hubspace-cache-v14';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

@@ -367,26 +367,65 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    let iconClass = 'fa-circle-info';
+    if (type === 'success') iconClass = 'fa-circle-check';
+    if (type === 'warning') iconClass = 'fa-triangle-exclamation';
+    if (type === 'error') iconClass = 'fa-circle-exclamation';
+
+    toast.innerHTML = `
+      <i class="fa-solid ${iconClass} toast-icon"></i>
+      <div class="toast-content">${message}</div>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+      toast.classList.add('fade-out');
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, 4000);
+  }
+
   function triggerFocusNotification(action) {
+    const modeNames = { work: 'Work Session', short: 'Short Break', long: 'Long Break' };
+    const modeLabel = modeNames[pomoCurrentMode] || 'Focus Session';
+    const isBreak = pomoCurrentMode !== 'work';
+
+    let title = '';
+    let body = '';
+    let toastType = 'info';
+
+    if (action === 'start') {
+      title = `${modeLabel} Started`;
+      body = isBreak ? `Time for a well-deserved rest! Take a break.` : `Focus session started. Let's study!`;
+      toastType = isBreak ? 'success' : 'info';
+    } else if (action === 'stop') {
+      title = `${modeLabel} Paused`;
+      body = `Your session has been paused or reset.`;
+      toastType = 'warning';
+    }
+
     if (isNotificationPermissionGranted()) {
       try {
-        const modeNames = { work: 'Work Session', short: 'Short Break', long: 'Long Break' };
-        const modeLabel = modeNames[pomoCurrentMode] || 'Focus Session';
-        if (action === 'start') {
-          new window.Notification('Focus Session Started', {
-            body: `Focus session (${modeLabel}) has started. Stay focused!`,
-            icon: 'logo.png'
-          });
-        } else if (action === 'stop') {
-          new window.Notification('Focus Session Stopped', {
-            body: 'Focus session has been stopped or paused.',
-            icon: 'logo.png'
-          });
-        }
+        new window.Notification(title, {
+          body: body,
+          icon: 'logo.png'
+        });
       } catch (e) {
         console.warn('Failed to send focus notification:', e);
       }
     }
+
+    showToast(`${title} — ${body}`, toastType);
   }
 
   function startPomo() {
@@ -475,11 +514,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       } catch (e) {
         console.warn('Failed to send notification:', e);
-        customAlert(body, title);
       }
-    } else {
-      customAlert(body, title);
     }
+    // Also display in-app toast
+    showToast(`${title}: ${body}`, 'info');
   }
 
   // Request notifications permission on load
@@ -495,10 +533,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Setup recurring notifications for to-do items by priority
   function initTodoReminders() {
-    // High priority: every 5 minutes
+    // High priority: every 2 minutes
     setInterval(() => {
       sendTodoReminderNotification('high');
-    }, 5 * 60 * 1000);
+    }, 2 * 60 * 1000);
 
     // Medium priority: every 7 minutes
     setInterval(() => {
@@ -516,22 +554,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const pending = state.todos.filter(t => !t.completed && t.priority === priority);
     if (pending.length === 0) return;
 
+    const labelMap = { high: 'High', medium: 'Medium', low: 'Low' };
+    const priorityLabel = labelMap[priority];
+    const count = pending.length;
+    const names = pending.slice(0, 3).map(t => t.name).join(', ');
+    const extra = count > 3 ? ` and ${count - 3} more` : '';
+
+    const title = `${priorityLabel} Priority Tasks Reminder`;
+    const body = `You have ${count} pending ${priorityLabel.toLowerCase()} priority task(s): ${names}${extra}.`;
+
     if (isNotificationPermissionGranted()) {
       try {
-        const labelMap = { high: 'High', medium: 'Medium', low: 'Low' };
-        const priorityLabel = labelMap[priority];
-        const count = pending.length;
-        const names = pending.slice(0, 3).map(t => t.name).join(', ');
-        const extra = count > 3 ? ` and ${count - 3} more` : '';
-
-        new window.Notification(`${priorityLabel} Priority Tasks Reminder`, {
-          body: `You have ${count} pending ${priorityLabel.toLowerCase()} priority task(s): ${names}${extra}.`,
+        new window.Notification(title, {
+          body: body,
           icon: 'logo.png'
         });
       } catch (e) {
         console.warn('Failed to send task reminder notification:', e);
       }
     }
+
+    const toastType = priority === 'high' ? 'error' : (priority === 'medium' ? 'warning' : 'info');
+    showToast(`Reminder: ${body}`, toastType);
   }
 
   function switchPomoMode(mode) {
