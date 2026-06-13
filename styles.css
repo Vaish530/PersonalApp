@@ -439,6 +439,10 @@ h1, h2, h3, h4, h5 {
   color: #fff;
 }
 
+.pomodoro-dash-widget {
+  display: none;
+}
+
 /* ==========================================================================
    Main Content Panels
    ========================================================================== */
@@ -2215,12 +2219,16 @@ h1, h2, h3, h4, h5 {
     font-size: 1.25rem;
   }
   .panes-container {
-    height: 100%;
+    height: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
     overflow: hidden;
   }
   .pane {
     height: 100%;
     overflow-y: auto;
+    padding-bottom: 40px;
   }
   .dashboard-grid {
     grid-template-columns: 1fr;
@@ -2278,6 +2286,23 @@ h1, h2, h3, h4, h5 {
   }
   .accent-selector {
     flex-wrap: wrap;
+  }
+  .pomodoro-dash-widget {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px 0 20px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 1px 1px 3px rgba(255, 255, 255, 0.1), 1px 1px 5px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    box-sizing: border-box;
+  }
+  [data-theme="dark"] .pomodoro-dash-widget {
+    background: rgba(205, 180, 219, 0.05);
+    border: 1px solid rgba(205, 180, 219, 0.1);
   }
 }
 

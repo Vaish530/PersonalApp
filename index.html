@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css?v=12.0">
+  <link rel="stylesheet" href="styles.css?v=13.0">
 
   <!-- App Logo / Favicon -->
   <link rel="icon" type="image/png" href="logo.png">
@@ -281,6 +281,26 @@
               <!-- Quick Focus Stats -->
               <div class="quick-timer-card clay-card">
                 <h3>Focused Studying</h3>
+                
+                <!-- Dashboard Focus Timer Widget -->
+                <div class="pomodoro-dash-widget">
+                  <div class="pomo-timer-display" id="dash-pomo-time">25:00</div>
+                  <div class="pomo-mode" id="dash-pomo-mode-label">Work Time</div>
+                  <div class="pomo-controls">
+                    <button class="clay-btn pomo-control-btn icon-btn" id="btn-dash-pomo-play" title="Play/Pause">
+                      <i class="fa-solid fa-play"></i>
+                    </button>
+                    <button class="clay-btn pomo-control-btn icon-btn" id="btn-dash-pomo-reset" title="Reset">
+                      <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                  </div>
+                  <div class="pomo-modes-select">
+                    <span class="active" data-mode="work">Work</span>
+                    <span data-mode="short">Short Break</span>
+                    <span data-mode="long">Long Break</span>
+                  </div>
+                </div>
+
                 <div class="focus-stats">
                   <div class="focus-stat-item">
                     <span class="value" id="stats-focus-time">0h 0m</span>
@@ -610,8 +630,8 @@
   <audio id="audio-alarm" src="https://assets.mixkit.co/active_storage/sfx/911/911-84.wav" preload="auto"></audio>
 
   <!-- Application logic scripts -->
-  <script src="dome-gallery.js?v=12.0"></script>
-  <script src="app.js?v=12.0"></script>
+  <script src="dome-gallery.js?v=13.0"></script>
+  <script src="app.js?v=13.0"></script>
 
 
 </body>

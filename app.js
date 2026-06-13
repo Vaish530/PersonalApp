@@ -326,6 +326,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const pomoLabel = document.getElementById('pomo-mode-label');
   const alarmSound = document.getElementById('audio-alarm');
 
+  const dashPomoTimerDisplay = document.getElementById('dash-pomo-time');
+  const dashPomoPlayBtn = document.getElementById('btn-dash-pomo-play');
+  const dashPomoResetBtn = document.getElementById('btn-dash-pomo-reset');
+  const dashPomoLabel = document.getElementById('dash-pomo-mode-label');
+
   const pomoDurations = {
     work: 25 * 60,
     short: 5 * 60,
@@ -341,14 +346,44 @@ document.addEventListener('DOMContentLoaded', () => {
   function updatePomoDisplay() {
     const minutes = Math.floor(pomoTimeLeft / 60);
     const seconds = pomoTimeLeft % 60;
-    pomoTimerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    const timeText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    if (pomoTimerDisplay) pomoTimerDisplay.textContent = timeText;
+    if (dashPomoTimerDisplay) dashPomoTimerDisplay.textContent = timeText;
+  }
+
+  function triggerFocusNotification(action) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const modeNames = { work: 'Work Session', short: 'Short Break', long: 'Long Break' };
+      const modeLabel = modeNames[pomoCurrentMode] || 'Focus Session';
+      if (action === 'start') {
+        new Notification('Focus Session Started', {
+          body: `Focus session (${modeLabel}) has started. Stay focused!`,
+          icon: 'logo.png'
+        });
+      } else if (action === 'stop') {
+        new Notification('Focus Session Stopped', {
+          body: 'Focus session has been stopped or paused.',
+          icon: 'logo.png'
+        });
+      }
+    }
   }
 
   function startPomo() {
     if (pomoIsRunning) return;
     pomoIsRunning = true;
-    pomoPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-    pomoPlayBtn.classList.add('primary');
+
+    triggerFocusNotification('start');
+
+    const playIcon = '<i class="fa-solid fa-pause"></i>';
+    if (pomoPlayBtn) {
+      pomoPlayBtn.innerHTML = playIcon;
+      pomoPlayBtn.classList.add('primary');
+    }
+    if (dashPomoPlayBtn) {
+      dashPomoPlayBtn.innerHTML = playIcon;
+      dashPomoPlayBtn.classList.add('primary');
+    }
 
     pomoTimer = setInterval(() => {
       if (pomoTimeLeft > 0) {
@@ -366,10 +401,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function pausePomo() {
+    const wasRunning = pomoIsRunning;
     clearInterval(pomoTimer);
     pomoIsRunning = false;
-    pomoPlayBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
-    pomoPlayBtn.classList.remove('primary');
+
+    if (wasRunning) {
+      triggerFocusNotification('stop');
+    }
+
+    const playIcon = '<i class="fa-solid fa-play"></i>';
+    if (pomoPlayBtn) {
+      pomoPlayBtn.innerHTML = playIcon;
+      pomoPlayBtn.classList.remove('primary');
+    }
+    if (dashPomoPlayBtn) {
+      dashPomoPlayBtn.innerHTML = playIcon;
+      dashPomoPlayBtn.classList.remove('primary');
+    }
   }
 
   function resetPomo() {
@@ -400,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(title, {
         body: body,
-        icon: 'https://cdn-icons-png.flaticon.com/192/9511/9511674.png'
+        icon: 'logo.png'
       });
     } else {
       customAlert(body, title);
@@ -412,13 +460,53 @@ document.addEventListener('DOMContentLoaded', () => {
     Notification.requestPermission();
   }
 
+  // Setup recurring notifications for to-do items by priority
+  function initTodoReminders() {
+    // High priority: every 5 minutes
+    setInterval(() => {
+      sendTodoReminderNotification('high');
+    }, 5 * 60 * 1000);
+
+    // Medium priority: every 7 minutes
+    setInterval(() => {
+      sendTodoReminderNotification('medium');
+    }, 7 * 60 * 1000);
+
+    // Low priority: every 15 minutes
+    setInterval(() => {
+      sendTodoReminderNotification('low');
+    }, 15 * 60 * 1000);
+  }
+
+  function sendTodoReminderNotification(priority) {
+    if (!state || !state.todos) return;
+    const pending = state.todos.filter(t => !t.completed && t.priority === priority);
+    if (pending.length === 0) return;
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const labelMap = { high: 'High', medium: 'Medium', low: 'Low' };
+      const priorityLabel = labelMap[priority];
+      const count = pending.length;
+      const names = pending.slice(0, 3).map(t => t.name).join(', ');
+      const extra = count > 3 ? ` and ${count - 3} more` : '';
+
+      new Notification(`${priorityLabel} Priority Tasks Reminder`, {
+        body: `You have ${count} pending ${priorityLabel.toLowerCase()} priority task(s): ${names}${extra}.`,
+        icon: 'logo.png'
+      });
+    }
+  }
+
   function switchPomoMode(mode) {
     pausePomo();
     pomoCurrentMode = mode;
     pomoTimeLeft = pomoDurations[mode];
-    pomoLabel.textContent = pomoModeTitles[mode];
     
-    // Update active visual tags
+    const labelText = pomoModeTitles[mode];
+    if (pomoLabel) pomoLabel.textContent = labelText;
+    if (dashPomoLabel) dashPomoLabel.textContent = labelText;
+    
+    // Update active visual tags across all selectors
     document.querySelectorAll('.pomo-modes-select span').forEach(span => {
       span.classList.toggle('active', span.dataset.mode === mode);
     });
@@ -426,15 +514,35 @@ document.addEventListener('DOMContentLoaded', () => {
     updatePomoDisplay();
   }
 
-  pomoPlayBtn.addEventListener('click', () => {
-    if (pomoIsRunning) {
-      pausePomo();
-    } else {
-      startPomo();
-    }
-  });
+  // Listeners for sidebar timer
+  if (pomoPlayBtn) {
+    pomoPlayBtn.addEventListener('click', () => {
+      if (pomoIsRunning) {
+        pausePomo();
+      } else {
+        startPomo();
+      }
+    });
+  }
 
-  pomoResetBtn.addEventListener('click', resetPomo);
+  if (pomoResetBtn) {
+    pomoResetBtn.addEventListener('click', resetPomo);
+  }
+
+  // Listeners for dashboard timer (mobile)
+  if (dashPomoPlayBtn) {
+    dashPomoPlayBtn.addEventListener('click', () => {
+      if (pomoIsRunning) {
+        pausePomo();
+      } else {
+        startPomo();
+      }
+    });
+  }
+
+  if (dashPomoResetBtn) {
+    dashPomoResetBtn.addEventListener('click', resetPomo);
+  }
 
   document.querySelectorAll('.pomo-modes-select span').forEach(span => {
     span.addEventListener('click', (e) => {
@@ -443,6 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   updatePomoDisplay(); // Init display
+  initTodoReminders(); // Start task reminder checks
 
   // ==========================================================================
   // 5. SUBJECTS MANAGEMENT & DOME GALLERY CONTROL
