@@ -1888,6 +1888,30 @@ h1, h2, h3, h4, h5 {
   .sidebar.collapsed .pomodoro-sidebar-widget {
     display: none;
   }
+  .sidebar.collapsed .parent-nav-toggle {
+    padding: 12px 0 !important;
+    justify-content: center !important;
+  }
+  .sidebar.collapsed .parent-nav-toggle div {
+    gap: 0;
+  }
+  .sidebar.collapsed .parent-nav-toggle span {
+    display: none;
+  }
+  .sidebar.collapsed .parent-nav-toggle .chevron-icon {
+    display: none !important;
+  }
+  .sidebar.collapsed .nav-sub-links {
+    padding-left: 0;
+  }
+  .sidebar.collapsed .sub-nav-item {
+    padding: 12px 0 !important;
+    justify-content: center !important;
+    gap: 0;
+  }
+  .sidebar.collapsed .sub-nav-item span {
+    display: none !important;
+  }
 }
 
 /* Whiteboard & Sticky Notes Layout */

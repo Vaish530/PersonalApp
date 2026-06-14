@@ -15,6 +15,7 @@ window.DomeGallery = (function () {
     tangerine: { from: '#f3722c', to: '#b5431a', glow: '243,114,44',  text: '#fff' },
     sun:       { from: '#f9c74f', to: '#d4a017', glow: '249,199,79',  text: '#2d1e00' },
     seagrass:  { from: '#43aa8b', to: '#1f7a5e', glow: '67,170,139',  text: '#fff' },
+    cerulean:  { from: '#277da1', to: '#1a526b', glow: '39,125,161',  text: '#fff' },
   };
 
   const modules = [
@@ -22,6 +23,7 @@ window.DomeGallery = (function () {
     { id: 'notes',     name: 'Sticky Notes',     color: 'tangerine', icon: 'fa-note-sticky',   actionText: 'Open Whiteboard' },
     { id: 'gate',      name: 'GATE Prep',        color: 'sun',       icon: 'fa-graduation-cap',actionText: 'Track Syllabus'  },
     { id: 'documents', name: 'Document Vault',   color: 'seagrass',  icon: 'fa-folder-open',   actionText: 'Open Vault'      },
+    { id: 'acadexa',   name: 'Acadexa Hub',     color: 'cerulean',  icon: 'fa-user-graduate', actionText: 'Open Acadexa'    },
   ];
 
   /*
@@ -30,13 +32,15 @@ window.DomeGallery = (function () {
    */
   const slots = [
     // slot 0 — top / front card (slightly tilted, prominent)
-    { rotate: '-3deg',  tx: '0px',   ty: '0px',   scale: 1,    z: 40, opacity: 1,    blur: 0   },
+    { rotate: '-3deg',  tx: '0px',   ty: '0px',   scale: 1,    z: 50, opacity: 1,    blur: 0   },
     // slot 1 — second card, fans to the left-back
-    { rotate: '-14deg', tx: '-52px', ty: '18px',  scale: 0.96, z: 30, opacity: 0.88, blur: 0   },
+    { rotate: '-14deg', tx: '-52px', ty: '18px',  scale: 0.96, z: 40, opacity: 0.88, blur: 0   },
     // slot 2 — third card, fans to the right-back
-    { rotate: '11deg',  tx: '46px',  ty: '30px',  scale: 0.92, z: 20, opacity: 0.78, blur: 0   },
-    // slot 3 — bottom / back card, mostly obscured
-    { rotate: '-7deg',  tx: '-18px', ty: '46px',  scale: 0.86, z: 10, opacity: 0.55, blur: 1.5 },
+    { rotate: '11deg',  tx: '46px',  ty: '30px',  scale: 0.92, z: 30, opacity: 0.78, blur: 0   },
+    // slot 3 — fourth card, fans to the left-back
+    { rotate: '-7deg',  tx: '-18px', ty: '46px',  scale: 0.86, z: 20, opacity: 0.65, blur: 1.0 },
+    // slot 4 — bottom / back card, mostly obscured
+    { rotate: '6deg',   tx: '24px',  ty: '58px',  scale: 0.80, z: 10, opacity: 0.45, blur: 2.0 },
   ];
 
   /* ── State ───────────────────────────────────────────────────── */
@@ -86,7 +90,7 @@ window.DomeGallery = (function () {
       card.innerHTML = `
         <div class="dc-top">
           <div class="dc-icon"><i class="fa-solid ${mod.icon}"></i></div>
-          <span class="dc-badge">${i + 1}/4</span>
+          <span class="dc-badge">${i + 1}/5</span>
         </div>
         <div class="dc-title">${mod.name}</div>
         <div class="dc-body">
@@ -108,7 +112,7 @@ window.DomeGallery = (function () {
   function layoutCards(animated) {
     cardEls.forEach((card, modIdx) => {
       // slot = distance from top (0 = top, 1 = next, ...)
-      const slot = ((modIdx - topIndex) % 4 + 4) % 4;
+      const slot = ((modIdx - topIndex) % 5 + 5) % 5;
       const s    = slots[slot];
 
       card.style.transition = animated
@@ -135,11 +139,16 @@ window.DomeGallery = (function () {
   }
 
   function cycleNext() {
-    bringToTop((topIndex + 1) % 4);
+    bringToTop((topIndex + 1) % 5);
+  }
+
+  // Helper function: standard remainder
+  function mod5(val) {
+    return ((val % 5) + 5) % 5;
   }
 
   function cyclePrev() {
-    bringToTop((topIndex + 3) % 4);
+    bringToTop(mod5(topIndex - 1));
   }
 
   /* ── Events ───────────────────────────────────────────────────── */
@@ -150,7 +159,7 @@ window.DomeGallery = (function () {
       if (!card) return;
 
       const modIdx = parseInt(card.dataset.modIndex);
-      const slot   = ((modIdx - topIndex) % 4 + 4) % 4;
+      const slot   = ((modIdx - topIndex) % 5 + 5) % 5;
 
       if (slot === 0) {
         // Already on top — navigate
@@ -190,6 +199,7 @@ window.DomeGallery = (function () {
       case 'notes':     return { primary: `${d.notesCount  || 0} Notes Written`,   secondary: d.latestNoteTitle ? `Latest: ${d.latestNoteTitle}` : 'No notes yet' };
       case 'gate':      return { primary: `${d.gateProgress || 0}% Completed`,     secondary: `${d.gateDaysLeft || 0} Days Until Exam` };
       case 'documents': return { primary: `${d.docsCount   || 0} Files Saved`,     secondary: d.latestDocName ? `Latest: ${d.latestDocName}` : 'No files yet' };
+      case 'acadexa':   return { primary: `${d.subjectsCount || 0} Subjects Tracked`, secondary: `${d.eventsCount || 0} Scheduled Events` };
       default:          return { primary: '', secondary: '' };
     }
   }

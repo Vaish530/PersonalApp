@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cie1: 0,
             cie2: 0,
             other: 0,
+            completedUnits: [],
             ...s
           })),
           calendarEvents: parsed.calendarEvents || [],
@@ -386,6 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   cie1: 0,
                   cie2: 0,
                   other: 0,
+                  completedUnits: [],
                   ...s
                 })),
                 calendarEvents: remoteData.calendarEvents || [],
@@ -1080,12 +1082,26 @@ document.addEventListener('DOMContentLoaded', () => {
       gateProgress: gateProgress,
       gateDaysLeft: gateDaysLeft,
       docsCount: docsCount,
-      latestDocName: latestDocName
+      latestDocName: latestDocName,
+      subjectsCount: state.subjects.length,
+      eventsCount: (state.calendarEvents || []).length
     };
 
     // Call 3D Dome Gallery library initialization with overview dashboard data
     window.DomeGallery.init(dashboardData, (selectedCardId) => {
       // Directs navigation dynamically based on which overview card was clicked
+      if (selectedCardId === 'acadexa') {
+        const subNavBtn = document.getElementById('btn-subject-tracking');
+        if (subNavBtn) {
+          const btnAcadexaParent = document.getElementById('btn-acadexa-parent');
+          const subMenuAcadexa = document.getElementById('sub-menu-acadexa');
+          if (btnAcadexaParent && subMenuAcadexa && !btnAcadexaParent.classList.contains('expanded')) {
+            btnAcadexaParent.click();
+          }
+          subNavBtn.click();
+        }
+        return;
+      }
       const navTargetBtn = document.getElementById(`btn-${selectedCardId}`);
       if (navTargetBtn) {
         navTargetBtn.click();
@@ -1839,6 +1855,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const cieAvg = ((cie1Val + cie2Val) / 2).toFixed(1);
       const totalMarks = (parseFloat(cieAvg) + otherVal).toFixed(1);
 
+      const totalUnits = subject.units || 5;
+      const completedUnits = subject.completedUnits || [];
+      const completedCount = completedUnits.length;
+      const progressPercent = totalUnits > 0 ? Math.round((completedCount / totalUnits) * 100) : 0;
+
       const card = document.createElement('div');
       card.className = 'tracking-card clay-card';
       card.innerHTML = `
@@ -1865,6 +1886,30 @@ document.addEventListener('DOMContentLoaded', () => {
             <input type="number" class="other-input clay-input" data-id="${subject.id}" min="0" max="10" value="${otherVal}">
           </div>
         </div>
+        
+        <!-- Dynamic unit progress bar and checkboxes -->
+        <div class="tracking-units-progress" style="margin-top: 10px; margin-bottom: 5px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-secondary);">Syllabus Progress:</span>
+            <span class="progress-percent-label" style="font-size: 0.78rem; font-weight: 800; color: var(--accent);">${completedCount}/${totalUnits} (${progressPercent}%)</span>
+          </div>
+          <div class="clay-progress-bar" style="height: 6px; margin-bottom: 10px; border-radius: 3px;">
+            <div class="progress-fill units-progress-fill" style="width: ${progressPercent}%; height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.3s ease;"></div>
+          </div>
+          <div class="units-checkboxes" style="display: flex; gap: 8px; flex-wrap: wrap;">
+            ${Array.from({ length: totalUnits }, (_, idx) => {
+              const unitNum = idx + 1;
+              const isChecked = completedUnits.includes(unitNum) ? 'checked' : '';
+              return `
+                <label class="unit-checkbox-label" style="display: flex; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: 700; cursor: pointer; user-select: none;">
+                  <input type="checkbox" class="unit-checkbox" data-id="${subject.id}" data-unit="${unitNum}" ${isChecked} style="accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer;">
+                  <span>U${unitNum}</span>
+                </label>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
         <div class="tracking-results">
           <div class="result-stat">
             <span class="label">CIE Avg</span>
@@ -1916,6 +1961,32 @@ document.addEventListener('DOMContentLoaded', () => {
       cie1Input.addEventListener('input', updateValues);
       cie2Input.addEventListener('input', updateValues);
       otherInput.addEventListener('input', updateValues);
+
+      // Unit Checkboxes click listeners
+      card.querySelectorAll('.unit-checkbox').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+          const unitNum = parseInt(e.target.dataset.unit);
+          subject.completedUnits = subject.completedUnits || [];
+          if (e.target.checked) {
+            if (!subject.completedUnits.includes(unitNum)) {
+              subject.completedUnits.push(unitNum);
+            }
+          } else {
+            subject.completedUnits = subject.completedUnits.filter(u => u !== unitNum);
+          }
+
+          saveState();
+
+          const totalUnits = subject.units || 5;
+          const completedCount = subject.completedUnits.length;
+          const progressPercent = totalUnits > 0 ? Math.round((completedCount / totalUnits) * 100) : 0;
+
+          card.querySelector('.progress-percent-label').textContent = `${completedCount}/${totalUnits} (${progressPercent}%)`;
+          card.querySelector('.units-progress-fill').style.width = `${progressPercent}%`;
+
+          showNotification("Progress Updated 📈", `${subject.name}: Unit ${unitNum} ${e.target.checked ? 'completed' : 'uncompleted'}.`);
+        });
+      });
 
       card.querySelector('.delete-subject-btn').addEventListener('click', async () => {
         const confirmDelete = await customConfirm(`Remove subject "${subject.name}" from evaluation tracker?`, "Remove Subject");
