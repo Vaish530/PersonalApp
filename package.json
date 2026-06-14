@@ -8,6 +8,7 @@
   },
   "devDependencies": {},
   "scripts": {
+    "build": "echo 'No build step required'",
     "start": "npx http-server -p 8081"
   }
 }
