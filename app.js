@@ -2231,8 +2231,33 @@ document.addEventListener('DOMContentLoaded', () => {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('Service Worker registered successfully!', reg.scope))
+        .then(reg => {
+          console.log('Service Worker registered successfully!', reg.scope);
+          // If there is an update waiting, trigger skipWaiting
+          if (reg.waiting) {
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('New service worker available, skipping waiting...');
+                newWorker.postMessage({ type: 'SKIP_WAITING' });
+              }
+            });
+          });
+        })
         .catch(err => console.log('Service Worker registration failed:', err));
+    });
+
+    // Handle controller change (force reload to load new assets)
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) {
+        refreshing = true;
+        console.log('Service Worker controller changed, reloading...');
+        window.location.reload();
+      }
     });
   }
 

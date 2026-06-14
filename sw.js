@@ -37,7 +37,7 @@ if (messaging) {
   });
 }
 
-const CACHE_NAME = 'hubspace-cache-v14';
+const CACHE_NAME = 'hubspace-cache-v15';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -136,5 +136,12 @@ self.addEventListener('fetch', (event) => {
           return fetch(event.request);
         })
     );
+  }
+});
+
+// Listener for message events (e.g. to skip waiting and activate immediately)
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
   }
 });
