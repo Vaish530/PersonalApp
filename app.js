@@ -593,7 +593,34 @@ document.addEventListener('DOMContentLoaded', () => {
   const pomoPlayBtn = document.getElementById('btn-pomo-play');
   const pomoResetBtn = document.getElementById('btn-pomo-reset');
   const pomoLabel = document.getElementById('pomo-mode-label');
-  const alarmSound = document.getElementById('audio-alarm');
+  // Programmatic alarm chime synthesis using Web Audio API to prevent 403 hotlink blocking
+  function playAlarmSound() {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      
+      const playTone = (freq, startTime, duration) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.frequency.setValueAtTime(freq, startTime);
+        gain.gain.setValueAtTime(0.3, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+        
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      };
+      
+      const now = ctx.currentTime;
+      playTone(659.25, now, 0.6);       // E5 chime tone
+      playTone(880.00, now + 0.15, 0.8); // A5 chime tone
+    } catch (e) {
+      console.warn("Web Audio API chime playback prevented:", e);
+    }
+  }
 
   const dashPomoTimerDisplay = document.getElementById('dash-pomo-time');
   const dashPomoPlayBtn = document.getElementById('btn-dash-pomo-play');
@@ -720,9 +747,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         clearInterval(pomoTimer);
         pomoIsRunning = false;
-        if (alarmSound) {
-          alarmSound.play().catch(err => console.log('Audio playback prevented', err));
-        }
+        playAlarmSound();
         
         // Handle session transition
         handleSessionEnd();
