@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css?v=15.0">
+  <link rel="stylesheet" href="styles.css?v=16.0">
 
   <!-- App Logo / Favicon -->
   <link rel="icon" type="image/png" href="logo.png">
@@ -151,30 +151,11 @@
             <span>Documents</span>
           </button>
           
-          <!-- Parent Acadexa Accordion Menu -->
-          <button class="parent-nav-toggle expanded" id="btn-acadexa-parent">
-            <div>
-              <i class="fa-solid fa-graduation-cap"></i>
-              <span>Acadexa</span>
-            </div>
-            <i class="fa-solid fa-chevron-down chevron-icon"></i>
+          <!-- Acadexa Top-level Menu -->
+          <button class="nav-item" data-pane="acadexa" id="btn-acadexa">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>Acadexa</span>
           </button>
-          
-          <!-- Acadexa Sub-menu Links -->
-          <div class="nav-sub-links expanded" id="sub-menu-acadexa">
-            <button class="nav-item sub-nav-item" data-pane="subject-tracking" id="btn-subject-tracking">
-              <i class="fa-solid fa-user-graduate"></i>
-              <span>Subject Tracking</span>
-            </button>
-            <button class="nav-item sub-nav-item" data-pane="calendar" id="btn-calendar">
-              <i class="fa-solid fa-calendar-days"></i>
-              <span>Calendar</span>
-            </button>
-            <button class="nav-item sub-nav-item" data-pane="subjects-folder" id="btn-subjects-folder">
-              <i class="fa-solid fa-folder-tree"></i>
-              <span>Subjects Folder</span>
-            </button>
-          </div>
           
           <button class="nav-item" data-pane="settings" id="btn-settings">
             <i class="fa-solid fa-gears"></i>
@@ -552,12 +533,74 @@
           </div>
         </section>
 
+        <!-- ACADEXA HUB PANE -->
+        <section class="pane" id="pane-acadexa">
+          <div class="acadexa-hub-header clay-card" style="margin-bottom: 28px; padding: 28px 32px; display: flex; align-items: center; gap: 20px;">
+            <div style="width: 56px; height: 56px; border-radius: 18px; background: linear-gradient(135deg, var(--accent) 0%, rgba(var(--accent-rgb), 0.5) 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 8px 24px rgba(var(--accent-rgb), 0.3);">
+              <i class="fa-solid fa-graduation-cap" style="font-size: 1.6rem; color: white;"></i>
+            </div>
+            <div>
+              <h2 style="margin: 0; font-size: 1.7rem; font-weight: 800; letter-spacing: -0.5px;">Acadexa Academic Suite</h2>
+              <p style="margin: 6px 0 0 0; font-size: 0.88rem; color: var(--text-secondary);">Your all-in-one academic toolkit — track marks, plan events, and organise study resources.</p>
+            </div>
+          </div>
+
+          <div class="acadexa-hub-grid" id="acadexa-hub-grid">
+            <!-- Card 1: Subject Tracking -->
+            <button class="acadexa-hub-card clay-card" id="card-hub-tracking">
+              <div class="hub-card-icon" style="background: linear-gradient(135deg, #f94144 0%, #f3722c 100%);">
+                <i class="fa-solid fa-chart-line"></i>
+              </div>
+              <div class="hub-card-body">
+                <h3>Subject Tracking</h3>
+                <p>Monitor CIE marks, unit progress, and calculate totals for each subject in real-time.</p>
+              </div>
+              <div class="hub-card-arrow">
+                <i class="fa-solid fa-arrow-right"></i>
+              </div>
+            </button>
+
+            <!-- Card 2: Calendar -->
+            <button class="acadexa-hub-card clay-card" id="card-hub-calendar">
+              <div class="hub-card-icon" style="background: linear-gradient(135deg, #277da1 0%, #4d908e 100%);">
+                <i class="fa-solid fa-calendar-days"></i>
+              </div>
+              <div class="hub-card-body">
+                <h3>Academic Calendar</h3>
+                <p>Schedule exams, assignment deadlines, and key academic events on an interactive calendar.</p>
+              </div>
+              <div class="hub-card-arrow">
+                <i class="fa-solid fa-arrow-right"></i>
+              </div>
+            </button>
+
+            <!-- Card 3: Subjects Folder -->
+            <button class="acadexa-hub-card clay-card" id="card-hub-folder">
+              <div class="hub-card-icon" style="background: linear-gradient(135deg, #43aa8b 0%, #90be6d 100%);">
+                <i class="fa-solid fa-folder-open"></i>
+              </div>
+              <div class="hub-card-body">
+                <h3>Subjects File Vault</h3>
+                <p>Create subject folders and upload PDFs, documents, and images organised by topic.</p>
+              </div>
+              <div class="hub-card-arrow">
+                <i class="fa-solid fa-arrow-right"></i>
+              </div>
+            </button>
+          </div>
+        </section>
+
         <!-- SUBJECT TRACKING PANE -->
         <section class="pane" id="pane-subject-tracking">
           <div class="pane-header clay-card" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 20px;">
-            <div>
-              <h2 style="margin: 0; font-size: 1.5rem; font-weight: 800;">Subject Evaluation & Marks Tracker</h2>
-              <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">Manage subject units and calculate Continuous Internal Evaluation (CIE) averages and total marks.</p>
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <button class="clay-btn icon-btn btn-back-to-hub" id="btn-back-from-tracking" title="Back to Acadexa Hub" style="width:36px; height:36px; border-radius:11px; flex-shrink:0;">
+                <i class="fa-solid fa-arrow-left"></i>
+              </button>
+              <div>
+                <h2 style="margin: 0; font-size: 1.5rem; font-weight: 800;">Subject Evaluation &amp; Marks Tracker</h2>
+                <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">Manage subject units and calculate Continuous Internal Evaluation (CIE) averages and total marks.</p>
+              </div>
             </div>
             <button class="clay-btn primary" id="btn-add-tracking-subject">
               <i class="fa-solid fa-plus"></i> Add Subject
@@ -570,6 +613,17 @@
 
         <!-- EVENT CALENDAR PANE -->
         <section class="pane" id="pane-calendar">
+          <div class="pane-header clay-card" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 16px 20px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <button class="clay-btn icon-btn btn-back-to-hub" id="btn-back-from-calendar" title="Back to Acadexa Hub" style="width:36px; height:36px; border-radius:11px; flex-shrink:0;">
+                <i class="fa-solid fa-arrow-left"></i>
+              </button>
+              <h2 style="margin: 0; font-size: 1.5rem; font-weight: 800;">Academic Calendar</h2>
+            </div>
+            <button class="clay-btn primary small-btn" id="btn-add-calendar-event">
+              <i class="fa-solid fa-plus"></i> Add Event
+            </button>
+          </div>
           <div class="calendar-workspace" style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 20px;">
             <div class="calendar-card clay-card" style="padding: 20px; display: flex; flex-direction: column;">
               <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -592,9 +646,6 @@
             <div class="events-card clay-card" style="padding: 20px; display: flex; flex-direction: column;">
               <div class="events-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3 id="selected-date-label" style="margin: 0; font-size: 1.1rem; font-weight: 800;">Events</h3>
-                <button class="clay-btn primary small-btn" id="btn-add-calendar-event">
-                  <i class="fa-solid fa-plus"></i> Add Event
-                </button>
               </div>
               <div class="events-list" id="events-day-list" style="display: flex; flex-direction: column; gap: 10px; flex-grow: 1; overflow-y: auto;">
                 <!-- Injected dynamically via JS -->
@@ -608,9 +659,14 @@
           <!-- View 1: Grid of folders -->
           <div id="subjects-folder-grid-view">
             <div class="pane-header clay-card" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 20px;">
-              <div>
-                <h2 style="margin: 0; font-size: 1.5rem; font-weight: 800;">Academic Subjects File Vault</h2>
-                <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">Organize notes, textbooks, and diagrams inside subject folders synced to local storage.</p>
+              <div style="display: flex; align-items: center; gap: 14px;">
+                <button class="clay-btn icon-btn btn-back-to-hub" id="btn-back-from-folder" title="Back to Acadexa Hub" style="width:36px; height:36px; border-radius:11px; flex-shrink:0;">
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div>
+                  <h2 style="margin: 0; font-size: 1.5rem; font-weight: 800;">Academic Subjects File Vault</h2>
+                  <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">Organize notes, textbooks, and diagrams inside subject folders synced to local storage.</p>
+                </div>
               </div>
               <button class="clay-btn primary" id="btn-create-subject-folder">
                 <i class="fa-solid fa-folder-plus"></i> Create Folder
@@ -675,7 +731,7 @@
               </div>
             </div>
           </div>
-        </section>
+        </section>ection>
 
       </div>
     </main>
@@ -944,8 +1000,8 @@
   <script src="firebase-init.js?v=15.0"></script>
 
   <!-- Application logic scripts -->
-  <script src="dome-gallery.js?v=15.0"></script>
-  <script src="app.js?v=15.0"></script>
+  <script src="dome-gallery.js?v=16.0"></script>
+  <script src="app.js?v=16.0"></script>
 
 
 </body>

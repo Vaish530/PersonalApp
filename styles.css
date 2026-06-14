@@ -3877,4 +3877,163 @@ h1, h2, h3, h4, h5 {
   }
 }
 
+/* ==========================================================================
+   20. ACADEXA HUB STYLES
+   ========================================================================== */
+
+/* Hub Grid — 3-column on desktop, 1-column on mobile */
+.acadexa-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* Each hub card — premium button card feel */
+.acadexa-hub-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 28px 24px;
+  border-radius: 24px;
+  cursor: pointer;
+  text-align: left;
+  border: 1px solid var(--border-color);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              box-shadow 0.25s ease;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.acadexa-hub-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.04) 0%, transparent 60%);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.acadexa-hub-card:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 20px 40px rgba(var(--accent-rgb), 0.18),
+              var(--clay-outer-shadow);
+}
+
+.acadexa-hub-card:hover::before {
+  opacity: 1;
+}
+
+.acadexa-hub-card:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+/* Icon bubble */
+.hub-card-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+  transition: transform 0.25s ease;
+}
+
+.hub-card-icon i {
+  font-size: 1.6rem;
+  color: white;
+}
+
+.acadexa-hub-card:hover .hub-card-icon {
+  transform: scale(1.1) rotate(-4deg);
+}
+
+/* Body text */
+.hub-card-body {
+  flex-grow: 1;
+}
+
+.hub-card-body h3 {
+  margin: 0 0 6px 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.hub-card-body p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Arrow indicator */
+.hub-card-arrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(var(--accent-rgb), 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s ease, transform 0.25s ease;
+}
+
+.hub-card-arrow i {
+  color: var(--accent);
+  font-size: 0.85rem;
+  transition: transform 0.25s ease;
+}
+
+.acadexa-hub-card:hover .hub-card-arrow {
+  background: var(--accent);
+  transform: translateX(4px);
+}
+
+.acadexa-hub-card:hover .hub-card-arrow i {
+  color: white;
+  transform: translateX(2px);
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1024px) {
+  .acadexa-hub-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .acadexa-hub-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .acadexa-hub-card {
+    padding: 20px 18px;
+    gap: 16px;
+  }
+
+  .hub-card-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+  }
+
+  .hub-card-icon i {
+    font-size: 1.3rem;
+  }
+
+  .hub-card-body h3 {
+    font-size: 1rem;
+  }
+
+  .hub-card-body p {
+    display: none;
+  }
+}
 

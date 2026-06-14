@@ -160,6 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
         renderDocumentsList();
       } else if (activePane.id === 'pane-gate') {
         renderGateSyllabus();
+      } else if (activePane.id === 'pane-acadexa') {
+        // Hub pane — nothing to render, cards are static
       } else if (activePane.id === 'pane-subject-tracking') {
         renderSubjectTracking();
       } else if (activePane.id === 'pane-calendar') {
@@ -594,12 +596,48 @@ document.addEventListener('DOMContentLoaded', () => {
       renderDocumentsList();
     } else if (paneId === 'gate') {
       renderGateSyllabus();
+    } else if (paneId === 'acadexa') {
+      // Hub landing — sub-views are separate panes, nothing extra needed
     } else if (paneId === 'subject-tracking') {
       renderSubjectTracking();
     } else if (paneId === 'calendar') {
       renderCalendar();
     } else if (paneId === 'subjects-folder') {
       renderSubjectsFolderGrid();
+    }
+  }
+
+  // Helper: navigate to Acadexa sub-pane from the hub
+  function openAcadexaSubPane(paneId) {
+    // Remove active from all panes, activate the target sub-pane
+    panes.forEach(pane => pane.classList.remove('active'));
+    const target = document.getElementById(`pane-${paneId}`);
+    if (target) target.classList.add('active');
+
+    // Keep nav blob on the Acadexa button
+    const acadexaBtn = document.getElementById('btn-acadexa');
+    if (acadexaBtn) {
+      navItems.forEach(n => n.classList.remove('active'));
+      acadexaBtn.classList.add('active');
+      positionNavBlob(acadexaBtn);
+    }
+
+    if (paneId === 'subject-tracking') renderSubjectTracking();
+    else if (paneId === 'calendar') renderCalendar();
+    else if (paneId === 'subjects-folder') renderSubjectsFolderGrid();
+  }
+
+  // Helper: go back to Acadexa hub from any sub-pane
+  function goBackToAcadexaHub() {
+    panes.forEach(pane => pane.classList.remove('active'));
+    const hubPane = document.getElementById('pane-acadexa');
+    if (hubPane) hubPane.classList.add('active');
+
+    const acadexaBtn = document.getElementById('btn-acadexa');
+    if (acadexaBtn) {
+      navItems.forEach(n => n.classList.remove('active'));
+      acadexaBtn.classList.add('active');
+      positionNavBlob(acadexaBtn);
     }
   }
 
@@ -1102,15 +1140,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.DomeGallery.init(dashboardData, (selectedCardId) => {
       // Directs navigation dynamically based on which overview card was clicked
       if (selectedCardId === 'acadexa') {
-        const subNavBtn = document.getElementById('btn-subject-tracking');
-        if (subNavBtn) {
-          const btnAcadexaParent = document.getElementById('btn-acadexa-parent');
-          const subMenuAcadexa = document.getElementById('sub-menu-acadexa');
-          if (btnAcadexaParent && subMenuAcadexa && !btnAcadexaParent.classList.contains('expanded')) {
-            btnAcadexaParent.click();
-          }
-          subNavBtn.click();
-        }
+        // Navigate to Acadexa hub first
+        const acadexaBtn = document.getElementById('btn-acadexa');
+        if (acadexaBtn) acadexaBtn.click();
         return;
       }
       const navTargetBtn = document.getElementById(`btn-${selectedCardId}`);
@@ -1770,26 +1802,36 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnCloseDocViewerAlt) btnCloseDocViewerAlt.addEventListener('click', closeDocViewer);
 
   // ==========================================================================
-  // ACADEXA ACCORDION NAVIGATION
+  // ACADEXA HUB NAVIGATION — Hub card clicks & back-to-hub buttons
   // ==========================================================================
-  const btnAcadexaParent = document.getElementById('btn-acadexa-parent');
-  const subMenuAcadexa = document.getElementById('sub-menu-acadexa');
-  
-  if (btnAcadexaParent && subMenuAcadexa) {
-    btnAcadexaParent.addEventListener('click', () => {
-      btnAcadexaParent.classList.toggle('expanded');
-      subMenuAcadexa.classList.toggle('expanded');
-      
-      // Reposition nav blob immediately and after transition
-      const activeNav = document.querySelector('.nav-item.active');
-      positionNavBlob(activeNav);
-      
-      subMenuAcadexa.addEventListener('transitionend', () => {
-        const activeNav = document.querySelector('.nav-item.active');
-        positionNavBlob(activeNav);
-      }, { once: true });
-    });
+
+  // Hub card: Subject Tracking
+  const cardHubTracking = document.getElementById('card-hub-tracking');
+  if (cardHubTracking) {
+    cardHubTracking.addEventListener('click', () => openAcadexaSubPane('subject-tracking'));
   }
+
+  // Hub card: Calendar
+  const cardHubCalendar = document.getElementById('card-hub-calendar');
+  if (cardHubCalendar) {
+    cardHubCalendar.addEventListener('click', () => openAcadexaSubPane('calendar'));
+  }
+
+  // Hub card: Subjects Folder
+  const cardHubFolder = document.getElementById('card-hub-folder');
+  if (cardHubFolder) {
+    cardHubFolder.addEventListener('click', () => openAcadexaSubPane('subjects-folder'));
+  }
+
+  // Back buttons on each sub-pane
+  const btnBackFromTracking = document.getElementById('btn-back-from-tracking');
+  if (btnBackFromTracking) btnBackFromTracking.addEventListener('click', goBackToAcadexaHub);
+
+  const btnBackFromCalendar = document.getElementById('btn-back-from-calendar');
+  if (btnBackFromCalendar) btnBackFromCalendar.addEventListener('click', goBackToAcadexaHub);
+
+  const btnBackFromFolder = document.getElementById('btn-back-from-folder');
+  if (btnBackFromFolder) btnBackFromFolder.addEventListener('click', goBackToAcadexaHub);
 
   // ==========================================================================
   // SUBJECT TRACKING EVALUATION
