@@ -172,6 +172,105 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ==========================================================================
+  // NOTIFICATION & TOAST HELPERS (shared across app)
+  // ==========================================================================
+
+  function isNotificationSupported() {
+    try {
+      return ('Notification' in window && typeof window.Notification !== 'undefined');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function isNotificationPermissionGranted() {
+    try {
+      return isNotificationSupported() && window.Notification.permission === 'granted';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+
+    let iconClass = 'fa-circle-info';
+    if (type === 'success') iconClass = 'fa-circle-check';
+    if (type === 'warning') iconClass = 'fa-triangle-exclamation';
+    if (type === 'error') iconClass = 'fa-circle-exclamation';
+
+    toast.innerHTML = `
+      <i class="fa-solid ${iconClass} toast-icon"></i>
+      <div class="toast-content">${message}</div>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add('fade-out');
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
+  }
+
+  function showNotification(title, body) {
+    if (isNotificationPermissionGranted()) {
+      try {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.ready.then(registration => {
+            registration.showNotification(title, {
+              body: body,
+              icon: 'logo.png',
+              badge: 'logo.png',
+              vibrate: [200, 100, 200]
+            });
+          });
+        } else {
+          new window.Notification(title, { body, icon: 'logo.png' });
+        }
+      } catch (e) {
+        console.warn('Failed to send notification:', e);
+      }
+    }
+    showToast(`${title}: ${body}`, 'info');
+  }
+
+  function sendTodoReminderNotification(priority) {
+    if (!state || !state.todos) return;
+    const pending = state.todos.filter(t => !t.completed && t.priority === priority);
+    if (pending.length === 0) return;
+
+    const labelMap = { high: 'High', medium: 'Medium', low: 'Low' };
+    const priorityLabel = labelMap[priority];
+    const count = pending.length;
+    const names = pending.slice(0, 3).map(t => t.name).join(', ');
+    const extra = count > 3 ? ` and ${count - 3} more` : '';
+
+    const title = `${priorityLabel} Priority Tasks Reminder`;
+    const body = `You have ${count} pending ${priorityLabel.toLowerCase()} priority task(s): ${names}${extra}.`;
+
+    if (isNotificationPermissionGranted()) {
+      try {
+        new window.Notification(title, { body, icon: 'logo.png' });
+      } catch (e) {
+        console.warn('Failed to send task reminder notification:', e);
+      }
+    }
+
+    const toastType = priority === 'high' ? 'error' : (priority === 'medium' ? 'warning' : 'info');
+    showToast(`Reminder: ${body}`, toastType);
+  }
+
+  function initTodoReminders() {
+    setInterval(() => sendTodoReminderNotification('high'),   2 * 60 * 1000);
+    setInterval(() => sendTodoReminderNotification('medium'), 7 * 60 * 1000);
+    setInterval(() => sendTodoReminderNotification('low'),   15 * 60 * 1000);
+  }
+
   // Request notifications permission on load & monitor messages
   function initNotifications() {
     if (isNotificationSupported()) {
@@ -799,6 +898,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+
+
   initTodoReminders(); // Start task reminder checks
 
   // ==========================================================================
@@ -982,8 +1083,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. Focus session statistics
     const hoursFocus = Math.floor(state.pomodoroStats.totalTimeMinutes / 60);
     const minutesFocus = state.pomodoroStats.totalTimeMinutes % 60;
-    document.getElementById('stats-focus-time').textContent = `${hoursFocus}h ${minutesFocus}m`;
-    document.getElementById('stats-focus-sessions').textContent = state.pomodoroStats.totalSessions;
+    const statsFocusTime = document.getElementById('stats-focus-time');
+    if (statsFocusTime) {
+      statsFocusTime.textContent = `${hoursFocus}h ${minutesFocus}m`;
+    }
+    const statsFocusSessions = document.getElementById('stats-focus-sessions');
+    if (statsFocusSessions) {
+      statsFocusSessions.textContent = state.pomodoroStats.totalSessions;
+    }
 
     // 5. Urgent tasks panel
     const urgentTasksContainer = document.getElementById('dash-urgent-tasks');
