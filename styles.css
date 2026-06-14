@@ -3531,3 +3531,326 @@ h1, h2, h3, h4, h5 {
   transform: translateY(0);
 }
 
+/* ==========================================================================
+   15. ACADEXA SUBMENU & DROPDOWN ACCORDION
+   ========================================================================== */
+.parent-nav-toggle {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  background: transparent;
+  border: none;
+  width: 100%;
+  padding: 12px 16px !important;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border-radius: 14px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  text-align: left;
+}
+.parent-nav-toggle div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.parent-nav-toggle .chevron-icon {
+  font-size: 0.8rem;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  color: var(--text-secondary);
+}
+.parent-nav-toggle.expanded .chevron-icon {
+  transform: rotate(180deg);
+}
+.nav-sub-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), margin 0.4s ease;
+  padding-left: 12px;
+  box-sizing: border-box;
+}
+.nav-sub-links.expanded {
+  max-height: 350px;
+  margin-bottom: 12px;
+}
+.sub-nav-item {
+  font-size: 0.85rem !important;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+}
+
+/* ==========================================================================
+   16. SUBJECT TRACKING EVALUATION CARDS
+   ========================================================================== */
+.tracking-subjects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  padding: 5px;
+}
+.tracking-card {
+  padding: 24px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  border-radius: 28px !important;
+}
+.tracking-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding-bottom: 10px;
+}
+.tracking-card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.tracking-marks-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.tracking-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tracking-input-group label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.tracking-input-group input {
+  padding: 8px 10px !important;
+  font-size: 0.85rem !important;
+  border-radius: 10px !important;
+  text-align: center;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+.tracking-results {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0,0,0,0.02);
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.03);
+}
+[data-theme="dark"] .tracking-results {
+  background: rgba(255,255,255,0.02);
+  border-color: rgba(255,255,255,0.04);
+}
+.result-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.result-stat .label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.result-stat .value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.total-marks-badge {
+  background: rgba(var(--accent-rgb, 39, 125, 161), 0.1);
+  color: var(--accent);
+  border: 1px solid rgba(var(--accent-rgb, 39, 125, 161), 0.2);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   17. CALENDAR STYLING
+   ========================================================================== */
+.calendar-workspace {
+  min-height: 500px;
+}
+.calendar-card {
+  display: flex;
+  flex-direction: column;
+}
+.calendar-days {
+  margin-top: 10px;
+}
+.calendar-day-cell {
+  aspect-ratio: 1.2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 6px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.02);
+  border: 1px solid rgba(0,0,0,0.03);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+[data-theme="dark"] .calendar-day-cell {
+  background: rgba(255,255,255,0.02);
+  border-color: rgba(255,255,255,0.04);
+}
+.calendar-day-cell:hover {
+  transform: translateY(-2px);
+  background: rgba(var(--accent-rgb, 39, 125, 161), 0.05);
+  border-color: rgba(var(--accent-rgb, 39, 125, 161), 0.15);
+}
+.calendar-day-cell.current-month {
+  color: var(--text-primary);
+}
+.calendar-day-cell.other-month {
+  color: var(--text-secondary);
+  opacity: 0.4;
+}
+.calendar-day-cell.today {
+  border: 2px solid var(--accent);
+  background: rgba(var(--accent-rgb, 39, 125, 161), 0.04);
+  font-weight: 800;
+}
+.calendar-day-cell.selected {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  border-color: var(--accent) !important;
+  box-shadow: inset -3px -3px 8px rgba(0,0,0,0.2), 0 8px 20px rgba(var(--accent-rgb, 39, 125, 161), 0.35);
+}
+.calendar-day-number {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.calendar-event-indicator {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  align-items: center;
+  height: 6px;
+  width: 100%;
+}
+.event-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.event-item-card {
+  padding: 12px 16px;
+  border-radius: 16px;
+  border-left: 5px solid var(--accent);
+  background: rgba(0,0,0,0.015);
+  box-shadow: var(--clay-btn-shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+[data-theme="dark"] .event-item-card {
+  background: rgba(255,255,255,0.02);
+}
+
+/* ==========================================================================
+   18. SUBJECTS FOLDER VAULT
+   ========================================================================== */
+.folder-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 16px !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 24px !important;
+}
+.folder-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.1), var(--clay-btn-shadow);
+}
+.folder-icon {
+  font-size: 3.5rem;
+  color: var(--accent);
+  filter: drop-shadow(0 4px 8px rgba(var(--accent-rgb, 39, 125, 161), 0.2));
+}
+.folder-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: center;
+  color: var(--text-primary);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.file-categories-grid {
+  margin-top: 15px;
+}
+.category-card h3 {
+  font-size: 1.05rem;
+}
+.category-files-list {
+  min-height: 150px;
+}
+.file-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.02);
+  border: 1px solid rgba(0,0,0,0.03);
+  border-radius: 12px;
+  box-shadow: var(--clay-btn-shadow);
+  transition: transform 0.2s ease;
+}
+[data-theme="dark"] .file-list-item {
+  background: rgba(255,255,255,0.02);
+  border-color: rgba(255,255,255,0.04);
+}
+.file-list-item:hover {
+  transform: translateY(-2px);
+}
+.file-details {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  overflow: hidden;
+}
+.file-details span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.file-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   19. RESPONSIVE FOR NEW PANES
+   ========================================================================== */
+@media (max-width: 900px) {
+  .calendar-workspace {
+    display: flex !important;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .file-categories-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+

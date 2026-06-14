@@ -150,6 +150,32 @@
             <i class="fa-solid fa-folder-open"></i>
             <span>Documents</span>
           </button>
+          
+          <!-- Parent Acadexa Accordion Menu -->
+          <button class="parent-nav-toggle expanded" id="btn-acadexa-parent">
+            <div>
+              <i class="fa-solid fa-graduation-cap"></i>
+              <span>Acadexa</span>
+            </div>
+            <i class="fa-solid fa-chevron-down chevron-icon"></i>
+          </button>
+          
+          <!-- Acadexa Sub-menu Links -->
+          <div class="nav-sub-links expanded" id="sub-menu-acadexa">
+            <button class="nav-item sub-nav-item" data-pane="subject-tracking" id="btn-subject-tracking">
+              <i class="fa-solid fa-user-graduate"></i>
+              <span>Subject Tracking</span>
+            </button>
+            <button class="nav-item sub-nav-item" data-pane="calendar" id="btn-calendar">
+              <i class="fa-solid fa-calendar-days"></i>
+              <span>Calendar</span>
+            </button>
+            <button class="nav-item sub-nav-item" data-pane="subjects-folder" id="btn-subjects-folder">
+              <i class="fa-solid fa-folder-tree"></i>
+              <span>Subjects Folder</span>
+            </button>
+          </div>
+          
           <button class="nav-item" data-pane="settings" id="btn-settings">
             <i class="fa-solid fa-gears"></i>
             <span>Settings</span>
@@ -518,6 +544,131 @@
           </div>
         </section>
 
+        <!-- SUBJECT TRACKING PANE -->
+        <section class="pane" id="pane-subject-tracking">
+          <div class="pane-header clay-card" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 20px;">
+            <div>
+              <h2 style="margin: 0; font-size: 1.5rem; font-weight: 800;">Subject Evaluation & Marks Tracker</h2>
+              <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">Manage subject units and calculate Continuous Internal Evaluation (CIE) averages and total marks.</p>
+            </div>
+            <button class="clay-btn primary" id="btn-add-tracking-subject">
+              <i class="fa-solid fa-plus"></i> Add Subject
+            </button>
+          </div>
+          <div class="tracking-subjects-grid" id="tracking-subjects-grid">
+            <!-- Injected dynamically via JS -->
+          </div>
+        </section>
+
+        <!-- EVENT CALENDAR PANE -->
+        <section class="pane" id="pane-calendar">
+          <div class="calendar-workspace" style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 20px;">
+            <div class="calendar-card clay-card" style="padding: 20px; display: flex; flex-direction: column;">
+              <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <button class="clay-btn icon-btn" id="btn-calendar-prev" title="Previous Month" style="width:34px; height:34px; border-radius:10px;">
+                  <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <h2 id="calendar-month-year" style="margin: 0; font-size: 1.25rem; font-weight: 800;">June 2026</h2>
+                <button class="clay-btn icon-btn" id="btn-calendar-next" title="Next Month" style="width:34px; height:34px; border-radius:10px;">
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </div>
+              <div class="calendar-weekdays" style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: 700; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;">
+                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+              </div>
+              <div class="calendar-days" id="calendar-days-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; flex-grow: 1;">
+                <!-- Injected dynamically via JS -->
+              </div>
+            </div>
+
+            <div class="events-card clay-card" style="padding: 20px; display: flex; flex-direction: column;">
+              <div class="events-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 id="selected-date-label" style="margin: 0; font-size: 1.1rem; font-weight: 800;">Events</h3>
+                <button class="clay-btn primary small-btn" id="btn-add-calendar-event">
+                  <i class="fa-solid fa-plus"></i> Add Event
+                </button>
+              </div>
+              <div class="events-list" id="events-day-list" style="display: flex; flex-direction: column; gap: 10px; flex-grow: 1; overflow-y: auto;">
+                <!-- Injected dynamically via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SUBJECTS FOLDER FILE MANAGER PANE -->
+        <section class="pane" id="pane-subjects-folder">
+          <!-- View 1: Grid of folders -->
+          <div id="subjects-folder-grid-view">
+            <div class="pane-header clay-card" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 20px;">
+              <div>
+                <h2 style="margin: 0; font-size: 1.5rem; font-weight: 800;">Academic Subjects File Vault</h2>
+                <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">Organize notes, textbooks, and diagrams inside subject folders synced to local storage.</p>
+              </div>
+              <button class="clay-btn primary" id="btn-create-subject-folder">
+                <i class="fa-solid fa-folder-plus"></i> Create Folder
+              </button>
+            </div>
+            <div class="folders-grid" id="folders-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px;">
+              <!-- Injected dynamically via JS -->
+            </div>
+          </div>
+
+          <!-- View 2: Detailed files inside a subject -->
+          <div id="subject-folder-files-view" style="display: none;">
+            <div class="pane-header clay-card" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; padding: 20px;">
+              <div style="display: flex; align-items: center; gap: 15px; justify-content: space-between; width: 100%;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                  <button class="clay-btn icon-btn" id="btn-back-to-folders" title="Back to Folders" style="width:34px; height:34px; border-radius:10px;">
+                    <i class="fa-solid fa-arrow-left"></i>
+                  </button>
+                  <h2 id="active-folder-title" style="margin: 0; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-folder-open" style="color: var(--accent);"></i> <span>Subject Folder</span>
+                  </h2>
+                </div>
+                <!-- Manual upload trigger -->
+                <button class="clay-btn primary small-btn" id="btn-trigger-upload-input">
+                  <i class="fa-solid fa-upload"></i> Upload File
+                </button>
+              </div>
+              
+              <!-- Drag and drop zone -->
+              <div class="upload-dropzone clay-card" id="upload-dropzone" style="border: 2px dashed rgba(var(--accent-rgb, 3, 4, 94), 0.25); background: rgba(var(--accent-rgb, 3, 4, 94), 0.02); text-align: center; padding: 30px; border-radius: 18px; cursor: pointer; transition: all 0.3s ease;">
+                <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.2rem; color: var(--accent); margin-bottom: 10px;"></i>
+                <h4 style="margin: 0; font-weight: 700; font-size: 0.95rem;">Drag and drop study files here</h4>
+                <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">Supports PDFs, Documents (docx), and Images</p>
+                <input type="file" id="input-subject-file-upload" multiple style="display: none;">
+              </div>
+            </div>
+
+            <!-- Categories Grid -->
+            <div class="file-categories-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+              <!-- Category: PDFs -->
+              <div class="category-card clay-card" style="padding: 20px; min-height: 250px;">
+                <h3 style="margin-top:0; display:flex; align-items:center; gap:8px; font-weight:800; border-bottom:1px solid rgba(0,0,0,0.05); padding-bottom:8px;"><i class="fa-solid fa-file-pdf" style="color: #f94144;"></i> PDFs</h3>
+                <div class="category-files-list" id="files-list-pdf" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+                  <!-- Injected dynamically -->
+                </div>
+              </div>
+
+              <!-- Category: Documents -->
+              <div class="category-card clay-card" style="padding: 20px; min-height: 250px;">
+                <h3 style="margin-top:0; display:flex; align-items:center; gap:8px; font-weight:800; border-bottom:1px solid rgba(0,0,0,0.05); padding-bottom:8px;"><i class="fa-solid fa-file-word" style="color: #277da1;"></i> Documents</h3>
+                <div class="category-files-list" id="files-list-docx" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+                  <!-- Injected dynamically -->
+                </div>
+              </div>
+
+              <!-- Category: Images -->
+              <div class="category-card clay-card" style="padding: 20px; min-height: 250px;">
+                <h3 style="margin-top:0; display:flex; align-items:center; gap:8px; font-weight:800; border-bottom:1px solid rgba(0,0,0,0.05); padding-bottom:8px;"><i class="fa-solid fa-file-image" style="color: #43aa8b;"></i> Images</h3>
+                <div class="category-files-list" id="files-list-image" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+                  <!-- Injected dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </div>
     </main>
   </div>
@@ -553,6 +704,89 @@
       <div class="modal-footer">
         <button class="clay-btn" id="btn-cancel-subject">Cancel</button>
         <button class="clay-btn primary" id="btn-save-subject">Create Subject</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL: ADD TRACKING SUBJECT -->
+  <div class="modal-backdrop" id="modal-add-tracking-subject">
+    <div class="modal-content clay-card" style="max-width: 420px; width: 90%;">
+      <div class="modal-header">
+        <h3>Add Subject for Evaluation</h3>
+        <button class="close-btn" id="btn-close-tracking-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="input-tracking-name">Subject Name</label>
+          <input type="text" id="input-tracking-name" placeholder="e.g. Theory of Computation, Algorithms" class="clay-input">
+        </div>
+        <div class="form-group" style="margin-top:15px;">
+          <label for="input-tracking-units">Number of Units</label>
+          <input type="number" id="input-tracking-units" class="clay-input" min="1" max="15" value="5">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="clay-btn" id="btn-cancel-tracking">Cancel</button>
+        <button class="clay-btn primary" id="btn-save-tracking">Add Subject</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD CALENDAR EVENT -->
+  <div class="modal-backdrop" id="modal-add-calendar-event-modal">
+    <div class="modal-content clay-card" style="max-width: 450px; width: 90%;">
+      <div class="modal-header">
+        <h3>Schedule Academic Event</h3>
+        <button class="close-btn" id="btn-close-event-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="input-event-title">Event Title</label>
+          <input type="text" id="input-event-title" placeholder="e.g. Midterm Exam, Project Submission" class="clay-input">
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label for="input-event-date">Date</label>
+          <input type="date" id="input-event-date" class="clay-input">
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label for="input-event-desc">Description</label>
+          <input type="text" id="input-event-desc" placeholder="Brief details about the event" class="clay-input">
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label>Event Category Tag</label>
+          <div class="event-color-selector" style="display: flex; gap: 8px; margin-top: 5px;">
+            <span class="color-dot active" data-color="red" style="background: #f94144;"></span>
+            <span class="color-dot" data-color="orange" style="background: #f8961e;"></span>
+            <span class="color-dot" data-color="sun" style="background: #f9c74f;"></span>
+            <span class="color-dot" data-color="green" style="background: #90be6d;"></span>
+            <span class="color-dot" data-color="cerulean" style="background: #277da1;"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="clay-btn" id="btn-cancel-event">Cancel</button>
+        <button class="clay-btn primary" id="btn-save-event">Save Event</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CREATE SUBJECT FOLDER -->
+  <div class="modal-backdrop" id="modal-create-subject-folder-modal">
+    <div class="modal-content clay-card" style="max-width: 400px; width: 90%;">
+      <div class="modal-header">
+        <h3>Create Subject Folder</h3>
+        <button class="close-btn" id="btn-close-folder-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="input-folder-subject-name">Subject Folder Name</label>
+          <input type="text" id="input-folder-subject-name" placeholder="e.g. Computer Networks, Web Tech" class="clay-input">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="clay-btn" id="btn-cancel-folder">Cancel</button>
+        <button class="clay-btn primary" id="btn-save-folder">Create Folder</button>
       </div>
     </div>
   </div>

@@ -93,6 +93,8 @@ document.addEventListener('DOMContentLoaded', () => {
     notes: [],
     gateSyllabus: [],
     formulas: [],
+    calendarEvents: [],
+    subjectFolders: [],
     pomodoroStats: {
       totalSessions: 0,
       totalTimeMinutes: 0
@@ -113,6 +115,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return {
           ...defaultState,
           ...parsed,
+          subjects: (parsed.subjects || []).map(s => ({
+            units: 5,
+            cie1: 0,
+            cie2: 0,
+            other: 0,
+            ...s
+          })),
+          calendarEvents: parsed.calendarEvents || [],
+          subjectFolders: parsed.subjectFolders || [],
           pomodoroStats: { ...defaultState.pomodoroStats, ...(parsed.pomodoroStats || {}) }
         };
       }
@@ -148,6 +159,12 @@ document.addEventListener('DOMContentLoaded', () => {
         renderDocumentsList();
       } else if (activePane.id === 'pane-gate') {
         renderGateSyllabus();
+      } else if (activePane.id === 'pane-subject-tracking') {
+        renderSubjectTracking();
+      } else if (activePane.id === 'pane-calendar') {
+        renderCalendar();
+      } else if (activePane.id === 'pane-subjects-folder') {
+        renderSubjectsFolderGrid();
       }
     }
   }
@@ -364,6 +381,15 @@ document.addEventListener('DOMContentLoaded', () => {
               state = {
                 ...defaultState,
                 ...remoteData,
+                subjects: (remoteData.subjects || []).map(s => ({
+                  units: 5,
+                  cie1: 0,
+                  cie2: 0,
+                  other: 0,
+                  ...s
+                })),
+                calendarEvents: remoteData.calendarEvents || [],
+                subjectFolders: remoteData.subjectFolders || [],
                 pomodoroStats: { ...defaultState.pomodoroStats, ...(remoteData.pomodoroStats || {}) }
               };
               localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -566,6 +592,12 @@ document.addEventListener('DOMContentLoaded', () => {
       renderDocumentsList();
     } else if (paneId === 'gate') {
       renderGateSyllabus();
+    } else if (paneId === 'subject-tracking') {
+      renderSubjectTracking();
+    } else if (paneId === 'calendar') {
+      renderCalendar();
+    } else if (paneId === 'subjects-folder') {
+      renderSubjectsFolderGrid();
     }
   }
 
@@ -1709,6 +1741,747 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   if (btnCloseDocViewer) btnCloseDocViewer.addEventListener('click', closeDocViewer);
   if (btnCloseDocViewerAlt) btnCloseDocViewerAlt.addEventListener('click', closeDocViewer);
+
+  // ==========================================================================
+  // ACADEXA ACCORDION NAVIGATION
+  // ==========================================================================
+  const btnAcadexaParent = document.getElementById('btn-acadexa-parent');
+  const subMenuAcadexa = document.getElementById('sub-menu-acadexa');
+  
+  if (btnAcadexaParent && subMenuAcadexa) {
+    btnAcadexaParent.addEventListener('click', () => {
+      btnAcadexaParent.classList.toggle('expanded');
+      subMenuAcadexa.classList.toggle('expanded');
+      
+      // Reposition nav blob immediately and after transition
+      const activeNav = document.querySelector('.nav-item.active');
+      positionNavBlob(activeNav);
+      
+      subMenuAcadexa.addEventListener('transitionend', () => {
+        const activeNav = document.querySelector('.nav-item.active');
+        positionNavBlob(activeNav);
+      }, { once: true });
+    });
+  }
+
+  // ==========================================================================
+  // SUBJECT TRACKING EVALUATION
+  // ==========================================================================
+  const btnAddTrackingSubject = document.getElementById('btn-add-tracking-subject');
+  const modalAddTrackingSubject = document.getElementById('modal-add-tracking-subject');
+  const btnCloseTrackingModal = document.getElementById('btn-close-tracking-modal');
+  const btnCancelTracking = document.getElementById('btn-cancel-tracking');
+  const btnSaveTracking = document.getElementById('btn-save-tracking');
+  const inputTrackingName = document.getElementById('input-tracking-name');
+  const inputTrackingUnits = document.getElementById('input-tracking-units');
+  const trackingSubjectsGrid = document.getElementById('tracking-subjects-grid');
+
+  if (btnAddTrackingSubject) {
+    btnAddTrackingSubject.addEventListener('click', () => {
+      if (inputTrackingName) inputTrackingName.value = '';
+      if (inputTrackingUnits) inputTrackingUnits.value = '5';
+      if (modalAddTrackingSubject) modalAddTrackingSubject.classList.add('active');
+    });
+  }
+
+  const closeTrackingModal = () => {
+    if (modalAddTrackingSubject) modalAddTrackingSubject.classList.remove('active');
+  };
+  if (btnCloseTrackingModal) btnCloseTrackingModal.addEventListener('click', closeTrackingModal);
+  if (btnCancelTracking) btnCancelTracking.addEventListener('click', closeTrackingModal);
+
+  if (btnSaveTracking) {
+    btnSaveTracking.addEventListener('click', async () => {
+      const name = inputTrackingName.value.trim();
+      const units = parseInt(inputTrackingUnits.value) || 5;
+
+      if (!name) {
+        await customAlert("Please enter a subject name.", "Missing Information");
+        return;
+      }
+
+      const newSubject = {
+        id: generateId(),
+        name: name,
+        units: units,
+        cie1: 0,
+        cie2: 0,
+        other: 0
+      };
+
+      state.subjects.push(newSubject);
+      saveState();
+      closeTrackingModal();
+      renderSubjectTracking();
+      showNotification("Subject Added 🎓", `"${name}" added to evaluation tracker with ${units} units.`);
+    });
+  }
+
+  function renderSubjectTracking() {
+    if (!trackingSubjectsGrid) return;
+    trackingSubjectsGrid.innerHTML = '';
+
+    if (state.subjects.length === 0) {
+      trackingSubjectsGrid.innerHTML = `
+        <div class="empty-placeholder" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-secondary);">
+          <i class="fa-solid fa-user-graduate" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+          <h3>No subjects under evaluation</h3>
+          <p>Click "Add Subject" to start tracking CIE marks.</p>
+        </div>
+      `;
+      return;
+    }
+
+    state.subjects.forEach(subject => {
+      const cie1Val = subject.cie1 !== undefined ? subject.cie1 : 0;
+      const cie2Val = subject.cie2 !== undefined ? subject.cie2 : 0;
+      const otherVal = subject.other !== undefined ? subject.other : 0;
+      const cieAvg = ((cie1Val + cie2Val) / 2).toFixed(1);
+      const totalMarks = (parseFloat(cieAvg) + otherVal).toFixed(1);
+
+      const card = document.createElement('div');
+      card.className = 'tracking-card clay-card';
+      card.innerHTML = `
+        <div class="tracking-card-header">
+          <div>
+            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">${escapeHTML(subject.name)}</h3>
+            <span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 700;">Units: ${subject.units}</span>
+          </div>
+          <button class="clay-btn danger icon-btn delete-subject-btn" data-id="${subject.id}" style="width: 32px; height: 32px; border-radius: 10px;" title="Delete Subject">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+        <div class="tracking-marks-row">
+          <div class="tracking-input-group">
+            <label>CIE-1 (Max 20)</label>
+            <input type="number" class="cie1-input clay-input" data-id="${subject.id}" min="0" max="20" value="${cie1Val}">
+          </div>
+          <div class="tracking-input-group">
+            <label>CIE-2 (Max 20)</label>
+            <input type="number" class="cie2-input clay-input" data-id="${subject.id}" min="0" max="20" value="${cie2Val}">
+          </div>
+          <div class="tracking-input-group">
+            <label>Other (Max 10)</label>
+            <input type="number" class="other-input clay-input" data-id="${subject.id}" min="0" max="10" value="${otherVal}">
+          </div>
+        </div>
+        <div class="tracking-results">
+          <div class="result-stat">
+            <span class="label">CIE Avg</span>
+            <span class="value cie-avg-val">${cieAvg}</span>
+          </div>
+          <div class="result-stat">
+            <span class="label">Other</span>
+            <span class="value other-val">${otherVal}</span>
+          </div>
+          <div class="total-marks-badge">
+            Total: <span class="total-val">${totalMarks}</span> / 30
+          </div>
+        </div>
+      `;
+
+      // Event listeners for real-time calculations
+      const cie1Input = card.querySelector('.cie1-input');
+      const cie2Input = card.querySelector('.cie2-input');
+      const otherInput = card.querySelector('.other-input');
+
+      const updateValues = () => {
+        let c1 = parseFloat(cie1Input.value) || 0;
+        let c2 = parseFloat(cie2Input.value) || 0;
+        let oth = parseFloat(otherInput.value) || 0;
+
+        // Clamp
+        c1 = Math.max(0, Math.min(20, c1));
+        c2 = Math.max(0, Math.min(20, c2));
+        oth = Math.max(0, Math.min(10, oth));
+
+        cie1Input.value = c1;
+        cie2Input.value = c2;
+        otherInput.value = oth;
+
+        subject.cie1 = c1;
+        subject.cie2 = c2;
+        subject.other = oth;
+
+        saveState();
+
+        const newAvg = ((c1 + c2) / 2).toFixed(1);
+        const newTotal = (parseFloat(newAvg) + oth).toFixed(1);
+
+        card.querySelector('.cie-avg-val').textContent = newAvg;
+        card.querySelector('.other-val').textContent = oth;
+        card.querySelector('.total-val').textContent = newTotal;
+      };
+
+      cie1Input.addEventListener('input', updateValues);
+      cie2Input.addEventListener('input', updateValues);
+      otherInput.addEventListener('input', updateValues);
+
+      card.querySelector('.delete-subject-btn').addEventListener('click', async () => {
+        const confirmDelete = await customConfirm(`Remove subject "${subject.name}" from evaluation tracker?`, "Remove Subject");
+        if (confirmDelete) {
+          state.subjects = state.subjects.filter(s => s.id !== subject.id);
+          saveState();
+          renderSubjectTracking();
+          updateDashboardStats();
+          showNotification("Subject Deleted", `"${subject.name}" removed from evaluations.`);
+        }
+      });
+
+      trackingSubjectsGrid.appendChild(card);
+    });
+  }
+
+  // ==========================================================================
+  // EVENT CALENDAR CONTROLLER
+  // ==========================================================================
+  let currentCalDate = new Date();
+  let selectedCalDateStr = formatDateStr(currentCalDate);
+
+  const btnCalendarPrev = document.getElementById('btn-calendar-prev');
+  const btnCalendarNext = document.getElementById('btn-calendar-next');
+  const calendarMonthYear = document.getElementById('calendar-month-year');
+  const calendarDaysGrid = document.getElementById('calendar-days-grid');
+  const selectedDateLabel = document.getElementById('selected-date-label');
+  const eventsDayList = document.getElementById('events-day-list');
+  const btnAddCalendarEvent = document.getElementById('btn-add-calendar-event');
+  
+  const modalAddEvent = document.getElementById('modal-add-calendar-event-modal');
+  const btnCloseEventModal = document.getElementById('btn-close-event-modal');
+  const btnCancelEvent = document.getElementById('btn-cancel-event');
+  const btnSaveEvent = document.getElementById('btn-save-event');
+  
+  const inputEventTitle = document.getElementById('input-event-title');
+  const inputEventDate = document.getElementById('input-event-date');
+  const inputEventDesc = document.getElementById('input-event-desc');
+
+  // Helper to format date as YYYY-MM-DD
+  function formatDateStr(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  // Pre-fill modal date with selected date
+  if (btnAddCalendarEvent) {
+    btnAddCalendarEvent.addEventListener('click', () => {
+      if (inputEventTitle) inputEventTitle.value = '';
+      if (inputEventDesc) inputEventDesc.value = '';
+      if (inputEventDate) inputEventDate.value = selectedCalDateStr;
+      
+      // Select first color tag by default
+      const dots = document.querySelectorAll('.event-color-selector .color-dot');
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === 0);
+      });
+      
+      if (modalAddEvent) modalAddEvent.classList.add('active');
+    });
+  }
+
+  const closeEventModal = () => {
+    if (modalAddEvent) modalAddEvent.classList.remove('active');
+  };
+  if (btnCloseEventModal) btnCloseEventModal.addEventListener('click', closeEventModal);
+  if (btnCancelEvent) btnCancelEvent.addEventListener('click', closeEventModal);
+
+  // Color picker dot toggle
+  document.querySelectorAll('.event-color-selector .color-dot').forEach(dot => {
+    dot.addEventListener('click', (e) => {
+      document.querySelectorAll('.event-color-selector .color-dot').forEach(d => d.classList.remove('active'));
+      e.target.classList.add('active');
+    });
+  });
+
+  if (btnSaveEvent) {
+    btnSaveEvent.addEventListener('click', async () => {
+      const title = inputEventTitle.value.trim();
+      const desc = inputEventDesc.value.trim();
+      const dateVal = inputEventDate.value;
+
+      if (!title || !dateVal) {
+        await customAlert("Title and Date are required fields.", "Missing Fields");
+        return;
+      }
+
+      const activeColorDot = document.querySelector('.event-color-selector .color-dot.active');
+      const colorTag = activeColorDot ? activeColorDot.dataset.color : 'cerulean';
+
+      const newEvent = {
+        id: generateId(),
+        title: title,
+        desc: desc,
+        date: dateVal,
+        color: colorTag
+      };
+
+      state.calendarEvents.push(newEvent);
+      saveState();
+      closeEventModal();
+      
+      // Update view if the user added to a different month
+      const addedDate = new Date(dateVal);
+      currentCalDate = addedDate;
+      selectedCalDateStr = dateVal;
+      
+      renderCalendar();
+      showNotification("Event Scheduled 📅", `"${title}" has been scheduled for ${dateVal}.`);
+    });
+  }
+
+  if (btnCalendarPrev) {
+    btnCalendarPrev.addEventListener('click', () => {
+      currentCalDate.setMonth(currentCalDate.getMonth() - 1);
+      renderCalendar();
+    });
+  }
+
+  if (btnCalendarNext) {
+    btnCalendarNext.addEventListener('click', () => {
+      currentCalDate.setMonth(currentCalDate.getMonth() + 1);
+      renderCalendar();
+    });
+  }
+
+  const calendarColors = {
+    red: '#f94144',
+    orange: '#f8961e',
+    sun: '#f9c74f',
+    green: '#90be6d',
+    cerulean: '#277da1'
+  };
+
+  function renderCalendar() {
+    if (!calendarDaysGrid || !calendarMonthYear) return;
+
+    const year = currentCalDate.getFullYear();
+    const month = currentCalDate.getMonth();
+
+    const monthsList = [
+      "January", "February", "March", "April", "May", "June", 
+      "July", "August", "September", "October", "November", "December"
+    ];
+    calendarMonthYear.textContent = `${monthsList[month]} ${year}`;
+
+    // First day of current month
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    // Last day of current month
+    const totalDays = new Date(year, month + 1, 0).getDate();
+    // Last day of previous month
+    const prevTotalDays = new Date(year, month, 0).getDate();
+
+    calendarDaysGrid.innerHTML = '';
+
+    // Render prev month days
+    for (let i = firstDayIndex; i > 0; i--) {
+      const prevDay = prevTotalDays - i + 1;
+      const dateStr = formatDateStr(new Date(year, month - 1, prevDay));
+      createDayCell(prevDay, false, dateStr);
+    }
+
+    // Render current month days
+    for (let i = 1; i <= totalDays; i++) {
+      const dateStr = formatDateStr(new Date(year, month, i));
+      createDayCell(i, true, dateStr);
+    }
+
+    // Render next month days to complete grid (multiples of 7, let's say 42 cells total)
+    const totalCellsSoFar = firstDayIndex + totalDays;
+    const remainingCells = 42 - totalCellsSoFar;
+    for (let i = 1; i <= remainingCells; i++) {
+      const dateStr = formatDateStr(new Date(year, month + 1, i));
+      createDayCell(i, false, dateStr);
+    }
+
+    renderEventsForSelectedDate();
+
+    function createDayCell(dayNum, isCurrentMonth, cellDateStr) {
+      const cell = document.createElement('div');
+      cell.className = 'calendar-day-cell';
+      cell.classList.add(isCurrentMonth ? 'current-month' : 'other-month');
+      
+      const isToday = cellDateStr === formatDateStr(new Date());
+      if (isToday) cell.classList.add('today');
+      
+      const isSelected = cellDateStr === selectedCalDateStr;
+      if (isSelected) cell.classList.add('selected');
+
+      cell.innerHTML = `
+        <span class="calendar-day-number">${dayNum}</span>
+        <div class="calendar-event-indicator"></div>
+      `;
+
+      // Filter events for this day
+      const dayEvents = (state.calendarEvents || []).filter(e => e.date === cellDateStr);
+      const indicator = cell.querySelector('.calendar-event-indicator');
+      dayEvents.slice(0, 3).forEach(ev => {
+        const dot = document.createElement('span');
+        dot.className = 'event-dot';
+        dot.style.backgroundColor = calendarColors[ev.color] || 'var(--accent)';
+        indicator.appendChild(dot);
+      });
+
+      cell.addEventListener('click', () => {
+        selectedCalDateStr = cellDateStr;
+        // Rerender grid to shift active highlight
+        document.querySelectorAll('.calendar-day-cell').forEach(c => c.classList.remove('selected'));
+        cell.classList.add('selected');
+        renderEventsForSelectedDate();
+      });
+
+      calendarDaysGrid.appendChild(cell);
+    }
+  }
+
+  function renderEventsForSelectedDate() {
+    if (!selectedDateLabel || !eventsDayList) return;
+
+    // Make human readable label
+    const dateParts = selectedCalDateStr.split('-');
+    const parsedDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+    const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+    selectedDateLabel.textContent = parsedDate.toLocaleDateString('en-US', options);
+
+    eventsDayList.innerHTML = '';
+    const dayEvents = (state.calendarEvents || []).filter(e => e.date === selectedCalDateStr);
+
+    if (dayEvents.length === 0) {
+      eventsDayList.innerHTML = `
+        <div class="empty-placeholder" style="text-align: center; padding: 30px; color: var(--text-secondary);">
+          <i class="fa-solid fa-calendar-check" style="font-size: 2.2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+          <p style="font-size: 0.85rem; margin:0;">No events scheduled for this day.</p>
+        </div>
+      `;
+      return;
+    }
+
+    dayEvents.forEach(ev => {
+      const card = document.createElement('div');
+      card.className = 'event-item-card';
+      const eventColorHex = calendarColors[ev.color] || 'var(--accent)';
+      card.style.borderLeft = `5px solid ${eventColorHex}`;
+      
+      card.innerHTML = `
+        <div style="flex-grow: 1; margin-right: 12px;">
+          <h4 style="margin: 0; font-weight: 700; font-size: 0.95rem; color: var(--text-primary);">${escapeHTML(ev.title)}</h4>
+          <p style="margin: 3px 0 0 0; font-size: 0.78rem; color: var(--text-secondary); line-height:1.35;">${escapeHTML(ev.desc || '')}</p>
+        </div>
+        <button class="clay-btn danger icon-btn delete-event-btn" data-id="${ev.id}" style="width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;" title="Delete Event">
+          <i class="fa-solid fa-trash" style="font-size: 0.75rem;"></i>
+        </button>
+      `;
+
+      card.querySelector('.delete-event-btn').addEventListener('click', async () => {
+        const confirmDelete = await customConfirm(`Delete the event "${ev.title}"?`, "Delete Event");
+        if (confirmDelete) {
+          state.calendarEvents = state.calendarEvents.filter(e => e.id !== ev.id);
+          saveState();
+          renderCalendar();
+          showNotification("Event Deleted", `"${ev.title}" has been deleted.`);
+        }
+      });
+
+      eventsDayList.appendChild(card);
+    });
+  }
+
+  // ==========================================================================
+  // SUBJECTS FOLDER VAULT FILE MANAGER
+  // ==========================================================================
+  let activeFolderId = null;
+
+  const btnCreateSubjectFolder = document.getElementById('btn-create-subject-folder');
+  const foldersGrid = document.getElementById('folders-grid');
+  
+  const modalCreateFolder = document.getElementById('modal-create-subject-folder-modal');
+  const btnCloseFolderModal = document.getElementById('btn-close-folder-modal');
+  const btnCancelFolder = document.getElementById('btn-cancel-folder');
+  const btnSaveFolder = document.getElementById('btn-save-folder');
+  const inputFolderSubjectName = document.getElementById('input-folder-subject-name');
+  
+  const subjectsFolderGridView = document.getElementById('subjects-folder-grid-view');
+  const subjectFolderFilesView = document.getElementById('subject-folder-files-view');
+  const btnBackToFolders = document.getElementById('btn-back-to-folders');
+  const activeFolderTitle = document.getElementById('active-folder-title');
+  
+  const btnTriggerUploadInput = document.getElementById('btn-trigger-upload-input');
+  const uploadDropzone = document.getElementById('upload-dropzone');
+  const inputSubjectFileUpload = document.getElementById('input-subject-file-upload');
+  
+  const filesListPdf = document.getElementById('files-list-pdf');
+  const filesListDocx = document.getElementById('files-list-docx');
+  const filesListImage = document.getElementById('files-list-image');
+
+  if (btnCreateSubjectFolder) {
+    btnCreateSubjectFolder.addEventListener('click', () => {
+      if (inputFolderSubjectName) inputFolderSubjectName.value = '';
+      if (modalCreateFolder) modalCreateFolder.classList.add('active');
+    });
+  }
+
+  const closeFolderModal = () => {
+    if (modalCreateFolder) modalCreateFolder.classList.remove('active');
+  };
+  if (btnCloseFolderModal) btnCloseFolderModal.addEventListener('click', closeFolderModal);
+  if (btnCancelFolder) btnCancelFolder.addEventListener('click', closeFolderModal);
+
+  if (btnSaveFolder) {
+    btnSaveFolder.addEventListener('click', async () => {
+      const name = inputFolderSubjectName.value.trim();
+      if (!name) {
+        await customAlert("Please enter a subject folder name.", "Missing Name");
+        return;
+      }
+
+      const newFolder = {
+        id: generateId(),
+        name: name,
+        dateCreated: new Date().toISOString()
+      };
+
+      state.subjectFolders = state.subjectFolders || [];
+      state.subjectFolders.push(newFolder);
+      saveState();
+      closeFolderModal();
+      renderSubjectsFolderGrid();
+      showNotification("Folder Created 📁", `"${name}" subject folder is ready.`);
+    });
+  }
+
+  if (btnBackToFolders) {
+    btnBackToFolders.addEventListener('click', () => {
+      activeFolderId = null;
+      renderSubjectsFolderGrid();
+    });
+  }
+
+  function renderSubjectsFolderGrid() {
+    if (!foldersGrid || !subjectsFolderGridView || !subjectFolderFilesView) return;
+
+    activeFolderId = null;
+    subjectsFolderGridView.style.display = 'block';
+    subjectFolderFilesView.style.display = 'none';
+    foldersGrid.innerHTML = '';
+
+    const folders = state.subjectFolders || [];
+
+    if (folders.length === 0) {
+      foldersGrid.innerHTML = `
+        <div class="empty-placeholder" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-secondary);">
+          <i class="fa-solid fa-folder-open" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+          <h3>No study folders created yet</h3>
+          <p>Click "Create Folder" to start sorting your PDFs, docs, and images.</p>
+        </div>
+      `;
+      return;
+    }
+
+    folders.forEach(folder => {
+      const item = document.createElement('div');
+      item.className = 'folder-item clay-card';
+      item.dataset.id = folder.id;
+      item.innerHTML = `
+        <i class="fa-solid fa-folder folder-icon"></i>
+        <div class="folder-name" title="${escapeHTML(folder.name)}">${escapeHTML(folder.name)}</div>
+        <button class="clay-btn danger icon-btn delete-folder-btn" data-id="${folder.id}" style="padding: 4px; font-size: 0.75rem; width: 26px; height: 26px; border-radius: 8px; margin-top: 8px; flex-shrink: 0;" title="Delete Folder">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      `;
+
+      item.addEventListener('click', (e) => {
+        if (e.target.closest('.delete-folder-btn')) return;
+        openFolder(folder.id, folder.name);
+      });
+
+      item.querySelector('.delete-folder-btn').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const confirmDelete = await customConfirm(`Delete subject folder "${folder.name}" and all files inside? This cannot be undone.`, "Delete Subject Folder");
+        if (confirmDelete) {
+          // Delete files from IndexedDB
+          try {
+            const allDocs = await HubDB.getDocs();
+            const folderFiles = allDocs.filter(d => d.subjectId === folder.id);
+            for (const f of folderFiles) {
+              await HubDB.deleteDoc(f.id);
+            }
+          } catch (err) {
+            console.error("Failed to delete files inside folder", err);
+          }
+
+          state.subjectFolders = state.subjectFolders.filter(f => f.id !== folder.id);
+          saveState();
+          renderSubjectsFolderGrid();
+          updateDashboardStats();
+          showNotification("Folder Deleted", `"${folder.name}" has been deleted.`);
+        }
+      });
+
+      foldersGrid.appendChild(item);
+    });
+  }
+
+  function openFolder(folderId, folderName) {
+    activeFolderId = folderId;
+    if (subjectsFolderGridView) subjectsFolderGridView.style.display = 'none';
+    if (subjectFolderFilesView) subjectFolderFilesView.style.display = 'block';
+    
+    if (activeFolderTitle) {
+      activeFolderTitle.innerHTML = `<i class="fa-solid fa-folder-open" style="color: var(--accent);"></i> <span>${escapeHTML(folderName)}</span>`;
+    }
+
+    renderFolderFiles();
+  }
+
+  async function renderFolderFiles() {
+    if (!filesListPdf || !filesListDocx || !filesListImage) return;
+
+    filesListPdf.innerHTML = '<div style="color:var(--text-secondary); font-size:0.8rem; font-weight:600;">No PDFs yet</div>';
+    filesListDocx.innerHTML = '<div style="color:var(--text-secondary); font-size:0.8rem; font-weight:600;">No Documents yet</div>';
+    filesListImage.innerHTML = '<div style="color:var(--text-secondary); font-size:0.8rem; font-weight:600;">No Images yet</div>';
+
+    let allDocs = [];
+    try {
+      allDocs = await HubDB.getDocs();
+    } catch (err) {
+      console.error(err);
+      return;
+    }
+
+    const folderFiles = allDocs.filter(d => d.subjectId === activeFolderId);
+    if (folderFiles.length === 0) return;
+
+    let hasPdf = false;
+    let hasDoc = false;
+    let hasImg = false;
+
+    folderFiles.forEach(file => {
+      const type = file.type || '';
+      const name = file.name || '';
+      
+      let category = 'docx';
+      let iconClass = 'fa-solid fa-file-lines';
+      
+      if (type === 'application/pdf' || name.toLowerCase().endsWith('.pdf')) {
+        category = 'pdf';
+        iconClass = 'fa-solid fa-file-pdf';
+      } else if (type.startsWith('image/') || /\.(png|jpe?g|gif|svg|webp)$/i.test(name)) {
+        category = 'image';
+        iconClass = 'fa-solid fa-file-image';
+      } else if (/\.(docx?|txt|rtf|odt|xlsx?|pptx?)$/i.test(name)) {
+        category = 'docx';
+        iconClass = 'fa-solid fa-file-word';
+      }
+
+      const item = document.createElement('div');
+      item.className = 'file-list-item';
+      item.innerHTML = `
+        <div class="file-details">
+          <i class="${iconClass}" style="color: var(--accent); font-size: 1.1rem;"></i>
+          <span title="${escapeHTML(name)}">${escapeHTML(name)}</span>
+        </div>
+        <div class="file-actions">
+          <button class="clay-btn icon-btn view-file-btn" data-id="${file.id}" title="View File" style="width:28px; height:28px; border-radius:8px;">
+            <i class="fa-solid fa-eye" style="font-size:0.75rem;"></i>
+          </button>
+          <button class="clay-btn icon-btn download-file-btn" data-id="${file.id}" title="Download File" style="width:28px; height:28px; border-radius:8px;">
+            <i class="fa-solid fa-download" style="font-size:0.75rem;"></i>
+          </button>
+          <button class="clay-btn danger icon-btn delete-file-btn" data-id="${file.id}" title="Delete File" style="width:28px; height:28px; border-radius:8px;">
+            <i class="fa-solid fa-trash" style="font-size:0.75rem;"></i>
+          </button>
+        </div>
+      `;
+
+      item.querySelector('.view-file-btn').addEventListener('click', () => openDocumentViewer(file));
+      
+      item.querySelector('.download-file-btn').addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.href = file.data;
+        link.download = file.name;
+        link.click();
+      });
+
+      item.querySelector('.delete-file-btn').addEventListener('click', async () => {
+        const confirmDelete = await customConfirm(`Delete study resource "${file.name}"?`, "Delete File");
+        if (confirmDelete) {
+          await HubDB.deleteDoc(file.id);
+          renderFolderFiles();
+          updateDashboardStats();
+          showNotification("File Deleted", `"${file.name}" has been deleted.`);
+        }
+      });
+
+      if (category === 'pdf') {
+        if (!hasPdf) { filesListPdf.innerHTML = ''; hasPdf = true; }
+        filesListPdf.appendChild(item);
+      } else if (category === 'image') {
+        if (!hasImg) { filesListImage.innerHTML = ''; hasImg = true; }
+        filesListImage.appendChild(item);
+      } else {
+        if (!hasDoc) { filesListDocx.innerHTML = ''; hasDoc = true; }
+        filesListDocx.appendChild(item);
+      }
+    });
+  }
+
+  // Upload actions trigger
+  if (btnTriggerUploadInput && inputSubjectFileUpload) {
+    btnTriggerUploadInput.addEventListener('click', () => inputSubjectFileUpload.click());
+  }
+
+  // Drag and drop events for subject folder
+  if (uploadDropzone && inputSubjectFileUpload) {
+    uploadDropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadDropzone.classList.add('dragover');
+    });
+    uploadDropzone.addEventListener('dragleave', () => uploadDropzone.classList.remove('dragover'));
+    uploadDropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadDropzone.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) handleSubjectFilesUpload(files);
+    });
+    uploadDropzone.addEventListener('click', () => inputSubjectFileUpload.click());
+    inputSubjectFileUpload.addEventListener('change', (e) => {
+      const files = e.target.files;
+      if (files.length > 0) handleSubjectFilesUpload(files);
+    });
+  }
+
+  async function handleSubjectFilesUpload(files) {
+    if (!activeFolderId) return;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.size > 20 * 1024 * 1024) {
+        await customAlert(`"${file.name}" exceeds 20MB limit. Skipping.`, "File Too Large");
+        continue;
+      }
+
+      try {
+        const base64Data = await fileToBase64(file);
+        const newFile = {
+          id: generateId(),
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          dateAdded: new Date().toISOString(),
+          data: base64Data,
+          subjectId: activeFolderId
+        };
+        await HubDB.saveDoc(newFile);
+      } catch (err) {
+        console.error("Failed to upload subject file", err);
+        await customAlert(`Failed to save "${file.name}".`, "Upload Error");
+      }
+    }
+
+    renderFolderFiles();
+    updateDashboardStats();
+    showNotification("Files Uploaded", `${files.length} resource file(s) saved to folder.`);
+  }
 
   // ==========================================================================
   // 9. GATE CS PREP CONTROLLER & SYLLABUS DATA
