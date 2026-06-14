@@ -847,10 +847,21 @@ document.addEventListener('DOMContentLoaded', () => {
   function showNotification(title, body) {
     if (isNotificationPermissionGranted()) {
       try {
-        new window.Notification(title, {
-          body: body,
-          icon: 'logo.png'
-        });
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.ready.then(registration => {
+            registration.showNotification(title, {
+              body: body,
+              icon: 'logo.png',
+              badge: 'logo.png',
+              vibrate: [200, 100, 200]
+            });
+          });
+        } else {
+          new window.Notification(title, {
+            body: body,
+            icon: 'logo.png'
+          });
+        }
       } catch (e) {
         console.warn('Failed to send notification:', e);
       }
@@ -3007,6 +3018,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // Enter Workspace Action
   if (btnEnterWorkspace) {
     btnEnterWorkspace.addEventListener('click', () => {
+      // Request notifications permission during user gesture for mobile compatibility
+      if (isNotificationSupported() && window.Notification.permission === 'default') {
+        window.Notification.requestPermission().then(permission => {
+          console.log("Notification permission response:", permission);
+          if (permission === 'granted') {
+            showNotification("Notifications Enabled 🔔", "You will now receive system notifications for checklist and focus items.");
+          }
+        }).catch(err => console.warn("Failed to request notification permission:", err));
+      }
+
       // 1. Play fly-out 3D cards animation
       if (landingScene) {
         landingScene.classList.add('fly-out');
@@ -3098,6 +3119,28 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.accent-btn').forEach(btn => {
     if (btn.dataset.accent === state.accent) btn.classList.add('active');
   });
+
+  // Bind notification permission button in settings
+  const btnRequestNotificationPermission = document.getElementById('btn-request-notification-permission');
+  if (btnRequestNotificationPermission) {
+    btnRequestNotificationPermission.addEventListener('click', async () => {
+      if (!isNotificationSupported()) {
+        await customAlert("System notifications are not supported on this device or browser.", "Not Supported");
+        return;
+      }
+      
+      try {
+        const permission = await window.Notification.requestPermission();
+        if (permission === 'granted') {
+          showNotification("Notifications Enabled 🔔", "System notifications are active and ready on this device!");
+        } else if (permission === 'denied') {
+          await customAlert("Notifications permission was blocked. Reset your site settings in the browser address bar to enable.", "Permission Blocked");
+        }
+      } catch (err) {
+        console.error("Failed to request permission", err);
+      }
+    });
+  }
 
   // Register PWA Service Worker
   if ('serviceWorker' in navigator) {
