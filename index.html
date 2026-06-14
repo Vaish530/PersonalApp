@@ -193,6 +193,9 @@
           <button class="clay-btn theme-toggle" id="theme-toggle-btn" title="Toggle Light/Dark Theme" style="border-radius: 12px; width:38px; height:38px;">
             <i class="fa-solid fa-moon"></i>
           </button>
+          <button class="clay-btn theme-toggle" id="btn-auth-menu" title="Sync Account Across Devices" style="border-radius: 12px; width:38px; height:38px;">
+            <i class="fa-solid fa-user-lock" id="auth-btn-icon"></i>
+          </button>
         </div>
       </header>
 
@@ -626,11 +629,78 @@
     </div>
   </div>
 
+  <!-- MODAL: ACCOUNT AUTH & SYNC -->
+  <div class="modal-backdrop" id="modal-auth">
+    <div class="modal-content clay-card auth-modal" style="max-width: 420px; width: 90%;">
+      <div class="modal-header">
+        <h3 id="auth-modal-title">Sync Your Account</h3>
+        <button class="close-btn" id="btn-close-auth-modal">&times;</button>
+      </div>
+      
+      <!-- Labeled Out (Logged Out Panel) -->
+      <div class="modal-body" id="auth-modal-body-logged-out">
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.45;">
+          Synchronize your sticky notes, checklist tasks, and preparation progress across all your devices instantly.
+        </p>
+        
+        <!-- Toggle Sign In / Sign Up -->
+        <div class="auth-tabs" style="display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 12px;">
+          <button class="clay-btn active" id="tab-login" style="flex: 1; font-weight: 700; font-size: 0.85rem; padding: 8px 12px;">Log In</button>
+          <button class="clay-btn" id="tab-register" style="flex: 1; font-weight: 700; font-size: 0.85rem; padding: 8px 12px;">Sign Up</button>
+        </div>
+
+        <div class="form-group">
+          <label for="input-auth-email">Email Address</label>
+          <input type="email" id="input-auth-email" placeholder="you@example.com" class="clay-input" style="margin-bottom: 0;">
+        </div>
+        <div class="form-group" style="margin-top: 10px;">
+          <label for="input-auth-password">Password</label>
+          <input type="password" id="input-auth-password" placeholder="Min. 6 characters" class="clay-input" style="margin-bottom: 0;">
+        </div>
+        
+        <button class="clay-btn primary" id="btn-auth-submit" style="width: 100%; justify-content: center; margin-top: 20px; font-weight: 700;">
+          Log In
+        </button>
+
+        <div style="text-align: center; font-size: 0.8rem; margin: 12px 0; color: var(--text-secondary); font-weight: 600;">or</div>
+
+        <!-- Google Sign-In -->
+        <button class="clay-btn" id="btn-google-auth" style="width: 100%; justify-content: center; background: #ffffff; color: #5f6368; border: 1px solid #dadce0; box-shadow: var(--clay-btn-shadow); display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 0.9rem;">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" alt="Google Logo" style="width: 18px; height: 18px;">
+          Continue with Google
+        </button>
+      </div>
+
+      <!-- Logged In Panel -->
+      <div class="modal-body" id="auth-modal-body-logged-in" style="display: none;">
+        <div style="text-align: center; padding: 15px 0;">
+          <i class="fa-solid fa-cloud-arrow-up" style="font-size: 3rem; color: var(--accent); margin-bottom: 12px; filter: drop-shadow(0 0 15px rgba(var(--accent-rgb), 0.35));"></i>
+          <h4 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 6px;">Synchronization Active</h4>
+          <p id="auth-user-email" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px; font-weight: 500;"></p>
+          
+          <div class="sync-status-indicator" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(var(--accent-rgb), 0.08); color: var(--accent); padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 15px; border: 1px solid rgba(var(--accent-rgb), 0.15);">
+            <i class="fa-solid fa-arrows-rotate fa-spin"></i> Connected to Cloud Firestore
+          </div>
+        </div>
+        <button class="clay-btn danger" id="btn-auth-logout" style="width: 100%; justify-content: center; margin-top: 10px;">
+          <i class="fa-solid fa-right-from-bracket"></i> Log Out
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Background audio for Pomodoro -->
   <audio id="audio-alarm" src="https://assets.mixkit.co/active_storage/sfx/911/911-84.wav" preload="auto"></audio>
 
   <!-- Toast container for in-app notifications -->
   <div id="toast-container" class="toast-container"></div>
+
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
+  <script src="firebase-init.js?v=15.0"></script>
 
   <!-- Application logic scripts -->
   <script src="dome-gallery.js?v=15.0"></script>

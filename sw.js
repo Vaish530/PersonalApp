@@ -1,7 +1,41 @@
-/**
- * HubSpace PWA Service Worker
- * Offline Caching & Background Operations
- */
+importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js');
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDFr7qzwz_SLm6Jqt_C51WDjKowChfAfzg",
+  authDomain: "hubspace-sync.firebaseapp.com",
+  projectId: "hubspace-sync",
+  storageBucket: "hubspace-sync.firebasestorage.app",
+  messagingSenderId: "63137472554",
+  appId: "1:63137472554:web:fe6ac12297b3f85a33e353"
+};
+
+// Initialize Firebase in Service Worker
+firebase.initializeApp(firebaseConfig);
+
+let messaging = null;
+try {
+  if (firebase.messaging.isSupported()) {
+    messaging = firebase.messaging();
+  }
+} catch (e) {
+  console.warn("Firebase Messaging not supported in Service Worker context.", e);
+}
+
+if (messaging) {
+  messaging.onBackgroundMessage((payload) => {
+    console.log('[sw.js] Received background message ', payload);
+    const notificationTitle = payload.notification.title || "HubSpace Reminder";
+    const notificationOptions = {
+      body: payload.notification.body,
+      icon: 'logo.png',
+      badge: 'logo.png',
+      tag: payload.notification.tag || 'hubspace-task-reminder',
+      data: payload.data || {}
+    };
+    self.registration.showNotification(notificationTitle, notificationOptions);
+  });
+}
 
 const CACHE_NAME = 'hubspace-cache-v14';
 const ASSETS_TO_CACHE = [
@@ -47,6 +81,14 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
+  
+  // Skip caching for Firebase APIs and Serverless functions
+  if (url.origin.includes('firebase') || 
+      url.origin.includes('googleapis') || 
+      url.pathname.includes('/api/')) {
+    return;
+  }
+
   // Check if it's a local code asset (html, js, css)
   const isLocalCodeAsset = url.origin === self.location.origin && 
                            (url.pathname === '/' || 

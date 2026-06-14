@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const customPrompt = (message, defaultValue = '', title = 'Prompt') => showCustomDialog({ title, message, type: 'prompt', defaultValue });
 
   // ==========================================================================
-  // 1. STATE & STORAGE
+  // 1. STATE & STORAGE (Firebase Sync Enhanced)
   // ==========================================================================
   
   const STORAGE_KEY = 'productivity_hub_state';
@@ -100,6 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   let state = loadState();
+  let currentUser = null;
+  let firestoreUnsubscribe = null;
+  let authMode = 'login'; // 'login' or 'register'
 
   function loadState() {
     try {
@@ -118,9 +121,275 @@ document.addEventListener('DOMContentLoaded', () => {
     return JSON.parse(JSON.stringify(defaultState));
   }
 
-  function saveState() {
+  function saveState(skipFirestore = false) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    
+    if (currentUser && !skipFirestore && window.firebaseDb) {
+      window.firebaseDb.collection('users').doc(currentUser.uid).set(state, { merge: true })
+        .then(() => console.log("State synced to Firestore."))
+        .catch(err => console.error("Firestore sync write failed:", err));
+    }
   }
+
+  function updateAllPanes() {
+    applyTheme();
+    updateDashboardStats();
+    
+    const activePane = document.querySelector('.pane.active');
+    if (activePane) {
+      if (activePane.id === 'pane-dashboard') {
+        refreshDomeGallery();
+      } else if (activePane.id === 'pane-todo') {
+        renderTodoList();
+      } else if (activePane.id === 'pane-notes') {
+        renderWhiteboard();
+      } else if (activePane.id === 'pane-documents') {
+        renderDocumentsList();
+      } else if (activePane.id === 'pane-gate') {
+        renderGateSyllabus();
+      }
+    }
+  }
+
+  // Request notifications permission on load & monitor messages
+  function initNotifications() {
+    if (isNotificationSupported()) {
+      try {
+        if (window.Notification.permission === 'default') {
+          window.Notification.requestPermission().catch(err => console.log('Notification permission request rejected', err));
+        }
+      } catch (e) {
+        console.warn('Failed to request notifications permission:', e);
+      }
+    }
+    
+    // Handle foreground push messages
+    if (window.firebaseMessaging) {
+      window.firebaseMessaging.onMessage((payload) => {
+        console.log("Foreground FCM message received:", payload);
+        const title = payload.notification.title || "HubSpace Task Reminder";
+        const body = payload.notification.body || "";
+        showToast(`${title}: ${body}`, 'info');
+      });
+    }
+  }
+
+  // Auth UI initialization
+  function initAuth() {
+    const authModal = document.getElementById('modal-auth');
+    const btnAuthMenu = document.getElementById('btn-auth-menu');
+    const btnCloseAuthModal = document.getElementById('btn-close-auth-modal');
+    const tabLogin = document.getElementById('tab-login');
+    const tabRegister = document.getElementById('tab-register');
+    const inputEmail = document.getElementById('input-auth-email');
+    const inputPassword = document.getElementById('input-auth-password');
+    const btnSubmit = document.getElementById('btn-auth-submit');
+    const btnGoogle = document.getElementById('btn-google-auth');
+    const btnLogout = document.getElementById('btn-auth-logout');
+    
+    const loggedOutPanel = document.getElementById('auth-modal-body-logged-out');
+    const loggedInPanel = document.getElementById('auth-modal-body-logged-in');
+    const userEmailSpan = document.getElementById('auth-user-email');
+    const authBtnIcon = document.getElementById('auth-btn-icon');
+
+    if (btnAuthMenu) {
+      btnAuthMenu.addEventListener('click', () => {
+        authModal.classList.add('active');
+      });
+    }
+
+    const closeAuthModal = () => {
+      authModal.classList.remove('active');
+    };
+
+    if (btnCloseAuthModal) btnCloseAuthModal.addEventListener('click', closeAuthModal);
+
+    if (tabLogin && tabRegister) {
+      tabLogin.addEventListener('click', () => {
+        authMode = 'login';
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
+        btnSubmit.textContent = 'Log In';
+        document.getElementById('auth-modal-title').textContent = 'Sync Your Account';
+      });
+
+      tabRegister.addEventListener('click', () => {
+        authMode = 'register';
+        tabRegister.classList.add('active');
+        tabLogin.classList.remove('active');
+        btnSubmit.textContent = 'Sign Up';
+        document.getElementById('auth-modal-title').textContent = 'Create Sync Account';
+      });
+    }
+
+    if (btnSubmit) {
+      btnSubmit.addEventListener('click', async () => {
+        const email = inputEmail.value.trim();
+        const password = inputPassword.value.trim();
+
+        if (!email || !password) {
+          await customAlert("Please fill in both Email and Password fields.", "Missing Credentials");
+          return;
+        }
+
+        if (password.length < 6) {
+          await customAlert("Password must be at least 6 characters long.", "Weak Password");
+          return;
+        }
+
+        if (!window.firebaseAuth) {
+          await customAlert("Firebase Auth service is unavailable.", "Error");
+          return;
+        }
+
+        try {
+          if (authMode === 'login') {
+            await window.firebaseAuth.signInWithEmailAndPassword(email, password);
+            showToast("Successfully logged in!", "success");
+          } else {
+            await window.firebaseAuth.createUserWithEmailAndPassword(email, password);
+            showToast("Account created successfully!", "success");
+          }
+          closeAuthModal();
+        } catch (err) {
+          console.error("Auth Error:", err);
+          let errMsg = err.message || "An authentication error occurred.";
+          if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+            errMsg = "Invalid email or password. Please try again.";
+          } else if (err.code === 'auth/email-already-in-use') {
+            errMsg = "This email is already registered. Please log in instead.";
+          }
+          await customAlert(errMsg, "Authentication Failed");
+        }
+      });
+    }
+
+    if (btnGoogle) {
+      btnGoogle.addEventListener('click', async () => {
+        if (!window.firebaseAuth) {
+          await customAlert("Firebase Auth service is unavailable.", "Error");
+          return;
+        }
+
+        try {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          await window.firebaseAuth.signInWithPopup(provider);
+          showToast("Successfully authenticated with Google!", "success");
+          closeAuthModal();
+        } catch (err) {
+          console.error("Google Auth Error:", err);
+          await customAlert(err.message || "Failed to sign in with Google.", "Authentication Failed");
+        }
+      });
+    }
+
+    if (btnLogout) {
+      btnLogout.addEventListener('click', async () => {
+        if (!window.firebaseAuth) return;
+        
+        const confirmLogout = await customConfirm("Are you sure you want to log out? Local data will remain, but synchronization will stop.", "Log Out Confirmation");
+        if (confirmLogout) {
+          try {
+            await window.firebaseAuth.signOut();
+            showToast("Logged out successfully.", "info");
+            closeAuthModal();
+          } catch (err) {
+            console.error("Logout Error:", err);
+          }
+        }
+      });
+    }
+
+    window.updateAuthUI = function(isLoggedIn, email = '') {
+      if (isLoggedIn) {
+        if (loggedOutPanel) loggedOutPanel.style.display = 'none';
+        if (loggedInPanel) loggedInPanel.style.display = 'block';
+        if (userEmailSpan) userEmailSpan.textContent = email;
+        if (authBtnIcon) {
+          authBtnIcon.className = 'fa-solid fa-user-check';
+          authBtnIcon.style.color = 'var(--accent)';
+        }
+      } else {
+        if (loggedOutPanel) loggedOutPanel.style.display = 'block';
+        if (loggedInPanel) loggedInPanel.style.display = 'none';
+        if (userEmailSpan) userEmailSpan.textContent = '';
+        if (authBtnIcon) {
+          authBtnIcon.className = 'fa-solid fa-user-lock';
+          authBtnIcon.style.color = '';
+        }
+      }
+    };
+  }
+
+  function requestFCMToken(userId) {
+    if (window.firebaseMessaging) {
+      window.firebaseMessaging.getToken({ vapidKey: window.firebaseVapidKey })
+        .then((currentToken) => {
+          if (currentToken) {
+            console.log("FCM Token obtained:", currentToken);
+            window.firebaseDb.collection('users').doc(userId).set({
+              fcmToken: currentToken
+            }, { merge: true }).catch(err => {
+              console.error("Failed to save FCM Token to Firestore:", err);
+            });
+          } else {
+            console.log("No registration token available. Request permission to generate one.");
+          }
+        })
+        .catch((err) => {
+          console.warn("An error occurred while retrieving FCM token. ", err);
+        });
+    }
+  }
+
+  // Monitor Authentication state changes
+  if (window.firebaseAuth) {
+    window.firebaseAuth.onAuthStateChanged((user) => {
+      if (user) {
+        currentUser = user;
+        console.log("User logged in:", user.email);
+        updateAuthUI(true, user.email);
+        
+        if (firestoreUnsubscribe) firestoreUnsubscribe();
+        firestoreUnsubscribe = window.firebaseDb.collection('users').doc(user.uid).onSnapshot(
+          (doc) => {
+            if (doc.exists) {
+              const remoteData = doc.data();
+              // Deep merge/overwrite state
+              state = {
+                ...defaultState,
+                ...remoteData,
+                pomodoroStats: { ...defaultState.pomodoroStats, ...(remoteData.pomodoroStats || {}) }
+              };
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+              updateAllPanes();
+            } else {
+              // Write initial state to Firestore
+              window.firebaseDb.collection('users').doc(currentUser.uid).set(state);
+            }
+          },
+          (err) => {
+            console.error("Firestore snapshot listener error:", err);
+          }
+        );
+
+        requestFCMToken(user.uid);
+      } else {
+        currentUser = null;
+        if (firestoreUnsubscribe) {
+          firestoreUnsubscribe();
+          firestoreUnsubscribe = null;
+        }
+        updateAuthUI(false);
+        state = loadState();
+        updateAllPanes();
+      }
+    });
+  }
+
+  // Initialize Auth listeners and Notification configurations
+  initAuth();
+  initNotifications();
 
   function generateId() {
     return 'id_' + Math.random().toString(36).substr(2, 9);
@@ -520,16 +789,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast(`${title}: ${body}`, 'info');
   }
 
-  // Request notifications permission on load
-  if (isNotificationSupported()) {
-    try {
-      if (window.Notification.permission === 'default') {
-        window.Notification.requestPermission().catch(err => console.log('Notification permission request rejected', err));
-      }
-    } catch (e) {
-      console.warn('Failed to request notifications permission:', e);
-    }
-  }
+  // Recurring notifications setup for to-do items by priority
 
   // Setup recurring notifications for to-do items by priority
   function initTodoReminders() {

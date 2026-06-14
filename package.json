@@ -1,0 +1,13 @@
+{
+  "name": "hubspace-personal-productivity-hub",
+  "version": "1.0.0",
+  "description": "HubSpace Personal Productivity Hub & GATE Prep",
+  "main": "app.js",
+  "dependencies": {
+    "firebase-admin": "^11.8.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "npx http-server -p 8081"
+  }
+}

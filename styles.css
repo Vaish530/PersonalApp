@@ -2304,6 +2304,22 @@ h1, h2, h3, h4, h5 {
     background: rgba(205, 180, 219, 0.05);
     border: 1px solid rgba(205, 180, 219, 0.1);
   }
+  .whiteboard-surface {
+    padding: 36px 16px 20px 16px !important;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)) !important;
+    gap: 14px !important;
+  }
+  .sticky-note {
+    transform: none !important;
+    padding: 12px !important;
+  }
+  .sticky-pin {
+    top: -6px !important;
+    font-size: 1rem !important;
+  }
+  .sticky-note-title {
+    font-size: 0.85rem !important;
+  }
 }
 
 /* ==========================================================================
@@ -3441,3 +3457,33 @@ h1, h2, h3, h4, h5 {
     transform: translateX(0) scale(1);
   }
 }
+
+/* ==========================================================================
+   14. AUTHENTICATION & SYNC STYLING
+   ========================================================================== */
+.auth-tabs .clay-btn {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--clay-btn-shadow);
+  transition: all 0.2s ease;
+}
+.auth-tabs .clay-btn.active {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  border-color: var(--accent) !important;
+  box-shadow: inset -3px -3px 8px rgba(0,0,0,0.2), inset 3px 3px 6px rgba(255,255,255,0.3) !important;
+}
+[data-theme="dark"] #btn-google-auth {
+  background: #12101b !important;
+  color: #cdb4db !important;
+  border: 1px solid rgba(205, 180, 219, 0.25) !important;
+}
+#btn-google-auth:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+#btn-google-auth:active {
+  transform: translateY(0);
+}
+
