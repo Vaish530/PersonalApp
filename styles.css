@@ -4040,3 +4040,130 @@ h1, h2, h3, h4, h5 {
   }
 }
 
+/* ==========================================================================
+   21. DAILY MOTIVATIONAL QUOTE STYLES
+   ========================================================================== */
+
+/* Dashboard card */
+.daily-quote-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px;
+}
+
+.quote-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quote-icon-bubble {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--velvet-purple, #7b2d8b) 0%, var(--accent) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 6px 16px rgba(var(--accent-rgb), 0.28);
+}
+
+.quote-icon-bubble i {
+  color: white;
+  font-size: 1rem;
+}
+
+.quote-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--accent);
+}
+
+.quote-date {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.quote-text {
+  margin: 0;
+  padding: 16px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.65;
+  color: var(--text-primary);
+  border-left: 4px solid var(--accent);
+  background: rgba(var(--accent-rgb), 0.06);
+  border-radius: 0 14px 14px 0;
+  transition: opacity 0.3s ease;
+}
+
+.quote-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.quote-author {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-style: normal;
+}
+
+/* Sidebar quote widget */
+.sidebar-quote-widget {
+  margin: 12px 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: 22px;
+}
+
+.sidebar-quote-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--velvet-purple, #7b2d8b) 0%, var(--accent) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-quote-icon i {
+  color: white;
+  font-size: 0.75rem;
+}
+
+.sidebar-quote-text {
+  margin: 0;
+  font-size: 0.77rem;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sidebar-quote-author {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Hide sidebar widget when nav is collapsed */
+.sidebar.collapsed .sidebar-quote-widget {
+  display: none;
+}

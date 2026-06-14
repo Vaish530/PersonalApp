@@ -164,24 +164,11 @@
         </div>
       </nav>
 
-      <!-- Sidebar Pomodoro Widget -->
-      <div class="pomodoro-sidebar-widget clay-card">
-        <div class="pomo-title">Focus Session</div>
-        <div class="pomo-timer-display" id="pomo-time">25:00</div>
-        <div class="pomo-mode" id="pomo-mode-label">Work Time</div>
-        <div class="pomo-controls">
-          <button class="clay-btn pomo-control-btn icon-btn" id="btn-pomo-play" title="Play/Pause">
-            <i class="fa-solid fa-play"></i>
-          </button>
-          <button class="clay-btn pomo-control-btn icon-btn" id="btn-pomo-reset" title="Reset">
-            <i class="fa-solid fa-rotate-left"></i>
-          </button>
-        </div>
-        <div class="pomo-modes-select">
-          <span class="active" data-mode="work">Work</span>
-          <span data-mode="short">Short Break</span>
-          <span data-mode="long">Long Break</span>
-        </div>
+      <!-- Daily Motivational Quote Widget (sidebar) -->
+      <div class="sidebar-quote-widget clay-card" id="sidebar-quote-widget">
+        <div class="sidebar-quote-icon"><i class="fa-solid fa-quote-left"></i></div>
+        <p class="sidebar-quote-text" id="sidebar-quote-text">Loading quote...</p>
+        <span class="sidebar-quote-author" id="sidebar-quote-author"></span>
       </div>
     </aside>
 
@@ -288,38 +275,21 @@
                 </div>
               </div>
 
-              <!-- Quick Focus Stats -->
-              <div class="quick-timer-card clay-card">
-                <h3>Focused Studying</h3>
-                
-                <!-- Dashboard Focus Timer Widget -->
-                <div class="pomodoro-dash-widget">
-                  <div class="pomo-timer-display" id="dash-pomo-time">25:00</div>
-                  <div class="pomo-mode" id="dash-pomo-mode-label">Work Time</div>
-                  <div class="pomo-controls">
-                    <button class="clay-btn pomo-control-btn icon-btn" id="btn-dash-pomo-play" title="Play/Pause">
-                      <i class="fa-solid fa-play"></i>
-                    </button>
-                    <button class="clay-btn pomo-control-btn icon-btn" id="btn-dash-pomo-reset" title="Reset">
-                      <i class="fa-solid fa-rotate-left"></i>
-                    </button>
+              <!-- Daily Motivational Quote Card -->
+              <div class="daily-quote-card clay-card" id="daily-quote-card">
+                <div class="quote-card-header">
+                  <div class="quote-icon-bubble">
+                    <i class="fa-solid fa-quote-left"></i>
                   </div>
-                  <div class="pomo-modes-select">
-                    <span class="active" data-mode="work">Work</span>
-                    <span data-mode="short">Short Break</span>
-                    <span data-mode="long">Long Break</span>
-                  </div>
+                  <span class="quote-label">Daily Motivation</span>
+                  <span class="quote-date" id="quote-date"></span>
                 </div>
-
-                <div class="focus-stats">
-                  <div class="focus-stat-item">
-                    <span class="value" id="stats-focus-time">0h 0m</span>
-                    <span class="label">Total Focus Time</span>
-                  </div>
-                  <div class="focus-stat-item">
-                    <span class="value" id="stats-focus-sessions">0</span>
-                    <span class="label">Sessions Completed</span>
-                  </div>
+                <blockquote class="quote-text" id="dash-quote-text">Loading your daily inspiration...</blockquote>
+                <div class="quote-footer">
+                  <span class="quote-author" id="dash-quote-author"></span>
+                  <button class="clay-btn small-btn" id="btn-refresh-quote" title="Get a new quote">
+                    <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                  </button>
                 </div>
               </div>
 

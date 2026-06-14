@@ -665,352 +665,140 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================================================
-  // 4. POMODORO TIMER
   // ==========================================================================
-  
-  let pomoTimer = null;
-  let pomoTimeLeft = 25 * 60; // 25 mins in seconds
-  let pomoCurrentMode = 'work'; // 'work', 'short', 'long'
-  let pomoIsRunning = false;
-  const pomoTimerDisplay = document.getElementById('pomo-time');
-  const pomoPlayBtn = document.getElementById('btn-pomo-play');
-  const pomoResetBtn = document.getElementById('btn-pomo-reset');
-  const pomoLabel = document.getElementById('pomo-mode-label');
-  // Programmatic alarm chime synthesis using Web Audio API to prevent 403 hotlink blocking
-  function playAlarmSound() {
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
-      
-      const playTone = (freq, startTime, duration) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        
-        osc.frequency.setValueAtTime(freq, startTime);
-        gain.gain.setValueAtTime(0.3, startTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
-        
-        osc.start(startTime);
-        osc.stop(startTime + duration);
-      };
-      
-      const now = ctx.currentTime;
-      playTone(659.25, now, 0.6);       // E5 chime tone
-      playTone(880.00, now + 0.15, 0.8); // A5 chime tone
-    } catch (e) {
-      console.warn("Web Audio API chime playback prevented:", e);
+  // 4. DAILY MOTIVATIONAL QUOTE
+  // ==========================================================================
+
+  const QUOTES = [
+    { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+    { text: "It always seems impossible until it is done.", author: "Nelson Mandela" },
+    { text: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" },
+    { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+    { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+    { text: "Education is the most powerful weapon which you can use to change the world.", author: "Nelson Mandela" },
+    { text: "The beautiful thing about learning is that no one can take it away from you.", author: "B.B. King" },
+    { text: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
+    { text: "The more that you read, the more things you will know.", author: "Dr. Seuss" },
+    { text: "Live as if you were to die tomorrow. Learn as if you were to live forever.", author: "Mahatma Gandhi" },
+    { text: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar" },
+    { text: "Push yourself, because no one else is going to do it for you.", author: "Anonymous" },
+    { text: "Great things never come from comfort zones.", author: "Anonymous" },
+    { text: "Dream it. Wish it. Do it.", author: "Anonymous" },
+    { text: "Success doesn't just find you. You have to go out and get it.", author: "Anonymous" },
+    { text: "The harder you work for something, the greater you'll feel when you achieve it.", author: "Anonymous" },
+    { text: "Dream bigger. Do bigger.", author: "Anonymous" },
+    { text: "Wake up with determination. Go to bed with satisfaction.", author: "Anonymous" },
+    { text: "Do something today that your future self will thank you for.", author: "Sean Patrick Flanery" },
+    { text: "Little things make big days.", author: "Anonymous" },
+    { text: "It's going to be hard, but hard does not mean impossible.", author: "Anonymous" },
+    { text: "Don't stop when you're tired. Stop when you're done.", author: "Anonymous" },
+    { text: "Wake up. Kick ass. Be kind. Repeat.", author: "Anonymous" },
+    { text: "Some people dream of success while others wake up and work.", author: "Anonymous" },
+    { text: "Opportunities don't happen. You create them.", author: "Chris Grosser" },
+    { text: "Try not to become a person of success, but rather try to become a person of value.", author: "Albert Einstein" },
+    { text: "A person who never made a mistake never tried anything new.", author: "Albert Einstein" },
+    { text: "Strive for progress, not perfection.", author: "Anonymous" },
+    { text: "I find that the harder I work, the more luck I seem to have.", author: "Thomas Jefferson" },
+    { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+    { text: "Genius is one percent inspiration and ninety-nine percent perspiration.", author: "Thomas Edison" },
+    { text: "The expert in anything was once a beginner.", author: "Helen Hayes" },
+    { text: "Motivation is what gets you started. Habit is what keeps you going.", author: "Jim Ryun" },
+    { text: "Success is not the key to happiness. Happiness is the key to success.", author: "Albert Schweitzer" },
+    { text: "Your time is limited, don't waste it living someone else's life.", author: "Steve Jobs" },
+    { text: "The mind is not a vessel to be filled, but a fire to be kindled.", author: "Plutarch" },
+    { text: "Knowledge is power.", author: "Francis Bacon" },
+    { text: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein" },
+    { text: "Perseverance is not a long race; it is many short races one after the other.", author: "Walter Elliot" },
+    { text: "Study hard, for the well is deep and our brains are shallow.", author: "Richard Baxter" },
+    { text: "There are no shortcuts to any place worth going.", author: "Beverly Sills" },
+    { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" },
+    { text: "Challenges are what make life interesting; overcoming them is what makes life meaningful.", author: "Joshua J. Marine" },
+    { text: "The only limit to our realization of tomorrow is our doubts of today.", author: "Franklin D. Roosevelt" },
+    { text: "Courage is resistance to fear, mastery of fear — not absence of fear.", author: "Mark Twain" },
+    { text: "Self-belief and hard work will always earn you success.", author: "Virat Kohli" },
+    { text: "The difference between ordinary and extraordinary is that little extra.", author: "Jimmy Johnson" },
+    { text: "Focus on your goal. Don't look in any direction but ahead.", author: "Anonymous" },
+    { text: "Every day is a new beginning. Take a deep breath, smile, and start again.", author: "Anonymous" },
+    { text: "You are capable of more than you know.", author: "E.O. Wilson" },
+    { text: "Hard work beats talent when talent doesn't work hard.", author: "Tim Notke" }
+  ];
+
+  // Get today's date as a numeric seed (YYYYMMDD)
+  function getTodayDateSeed() {
+    const d = new Date();
+    return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  // Pick quote index deterministically based on date
+  function getDailyQuoteIndex() {
+    const seed = parseInt(getTodayDateSeed(), 10);
+    return seed % QUOTES.length;
+  }
+
+  // Load saved quote or generate today's
+  function getDailyQuote() {
+    const todaySeed = getTodayDateSeed();
+    const saved = JSON.parse(localStorage.getItem('hubspace_daily_quote') || 'null');
+    if (saved && saved.date === todaySeed) {
+      return saved.quote;
     }
+    // Pick fresh quote for today
+    const quote = QUOTES[getDailyQuoteIndex()];
+    localStorage.setItem('hubspace_daily_quote', JSON.stringify({ date: todaySeed, quote }));
+    return quote;
   }
 
-  const dashPomoTimerDisplay = document.getElementById('dash-pomo-time');
-  const dashPomoPlayBtn = document.getElementById('btn-dash-pomo-play');
-  const dashPomoResetBtn = document.getElementById('btn-dash-pomo-reset');
-  const dashPomoLabel = document.getElementById('dash-pomo-mode-label');
-
-  const pomoDurations = {
-    work: 25 * 60,
-    short: 5 * 60,
-    long: 15 * 60
-  };
-
-  const pomoModeTitles = {
-    work: 'Work Session',
-    short: 'Short Break',
-    long: 'Long Break'
-  };
-
-  function updatePomoDisplay() {
-    const minutes = Math.floor(pomoTimeLeft / 60);
-    const seconds = pomoTimeLeft % 60;
-    const timeText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    if (pomoTimerDisplay) pomoTimerDisplay.textContent = timeText;
-    if (dashPomoTimerDisplay) dashPomoTimerDisplay.textContent = timeText;
+  // Pick a random quote different from current one
+  function getRandomQuote(currentText) {
+    let quote;
+    do {
+      quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    } while (quote.text === currentText);
+    const todaySeed = getTodayDateSeed();
+    localStorage.setItem('hubspace_daily_quote', JSON.stringify({ date: todaySeed, quote }));
+    return quote;
   }
 
-  function isNotificationSupported() {
-    try {
-      return ('Notification' in window && typeof window.Notification !== 'undefined');
-    } catch (e) {
-      return false;
-    }
-  }
+  function renderDailyQuote(quote) {
+    const dashText = document.getElementById('dash-quote-text');
+    const dashAuthor = document.getElementById('dash-quote-author');
+    const quoteDate = document.getElementById('quote-date');
+    const sidebarText = document.getElementById('sidebar-quote-text');
+    const sidebarAuthor = document.getElementById('sidebar-quote-author');
 
-  function isNotificationPermissionGranted() {
-    try {
-      return isNotificationSupported() && window.Notification.permission === 'granted';
-    } catch (e) {
-      return false;
-    }
-  }
+    const today = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
 
-  function showToast(message, type = 'info') {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
-
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    
-    let iconClass = 'fa-circle-info';
-    if (type === 'success') iconClass = 'fa-circle-check';
-    if (type === 'warning') iconClass = 'fa-triangle-exclamation';
-    if (type === 'error') iconClass = 'fa-circle-exclamation';
-
-    toast.innerHTML = `
-      <i class="fa-solid ${iconClass} toast-icon"></i>
-      <div class="toast-content">${message}</div>
-    `;
-
-    container.appendChild(toast);
-
-    // Auto-remove after 4 seconds
-    setTimeout(() => {
-      toast.classList.add('fade-out');
+    if (dashText) {
+      // Fade animation
+      dashText.style.opacity = '0';
       setTimeout(() => {
-        toast.remove();
-      }, 300);
-    }, 4000);
+        dashText.textContent = `"${quote.text}"`;
+        dashText.style.opacity = '1';
+      }, 250);
+    }
+    if (dashAuthor) dashAuthor.textContent = `— ${quote.author}`;
+    if (quoteDate) quoteDate.textContent = today;
+    if (sidebarText) sidebarText.textContent = `"${quote.text}"`;
+    if (sidebarAuthor) sidebarAuthor.textContent = `— ${quote.author}`;
   }
 
-  function triggerFocusNotification(action) {
-    const modeNames = { work: 'Work Session', short: 'Short Break', long: 'Long Break' };
-    const modeLabel = modeNames[pomoCurrentMode] || 'Focus Session';
-    const isBreak = pomoCurrentMode !== 'work';
+  // Init and wire up
+  const dailyQuote = getDailyQuote();
+  renderDailyQuote(dailyQuote);
 
-    let title = '';
-    let body = '';
-    let toastType = 'info';
-
-    if (action === 'start') {
-      title = `${modeLabel} Started`;
-      body = isBreak ? `Time for a well-deserved rest! Take a break.` : `Focus session started. Let's study!`;
-      toastType = isBreak ? 'success' : 'info';
-    } else if (action === 'stop') {
-      title = `${modeLabel} Paused`;
-      body = `Your session has been paused or reset.`;
-      toastType = 'warning';
-    }
-
-    if (isNotificationPermissionGranted()) {
-      try {
-        new window.Notification(title, {
-          body: body,
-          icon: 'logo.png'
-        });
-      } catch (e) {
-        console.warn('Failed to send focus notification:', e);
-      }
-    }
-
-    showToast(`${title} — ${body}`, toastType);
-  }
-
-  function startPomo() {
-    if (pomoIsRunning) return;
-    pomoIsRunning = true;
-
-    triggerFocusNotification('start');
-
-    const playIcon = '<i class="fa-solid fa-pause"></i>';
-    if (pomoPlayBtn) {
-      pomoPlayBtn.innerHTML = playIcon;
-      pomoPlayBtn.classList.add('primary');
-    }
-    if (dashPomoPlayBtn) {
-      dashPomoPlayBtn.innerHTML = playIcon;
-      dashPomoPlayBtn.classList.add('primary');
-    }
-
-    pomoTimer = setInterval(() => {
-      if (pomoTimeLeft > 0) {
-        pomoTimeLeft--;
-        updatePomoDisplay();
-      } else {
-        clearInterval(pomoTimer);
-        pomoIsRunning = false;
-        playAlarmSound();
-        
-        // Handle session transition
-        handleSessionEnd();
-      }
-    }, 1000);
-  }
-
-  function pausePomo() {
-    const wasRunning = pomoIsRunning;
-    clearInterval(pomoTimer);
-    pomoIsRunning = false;
-
-    if (wasRunning) {
-      triggerFocusNotification('stop');
-    }
-
-    const playIcon = '<i class="fa-solid fa-play"></i>';
-    if (pomoPlayBtn) {
-      pomoPlayBtn.innerHTML = playIcon;
-      pomoPlayBtn.classList.remove('primary');
-    }
-    if (dashPomoPlayBtn) {
-      dashPomoPlayBtn.innerHTML = playIcon;
-      dashPomoPlayBtn.classList.remove('primary');
-    }
-  }
-
-  function resetPomo() {
-    pausePomo();
-    pomoTimeLeft = pomoDurations[pomoCurrentMode];
-    updatePomoDisplay();
-  }
-
-  function handleSessionEnd() {
-    if (pomoCurrentMode === 'work') {
-      state.pomodoroStats.totalSessions++;
-      state.pomodoroStats.totalTimeMinutes += Math.round(pomoDurations.work / 60);
-      saveState();
-      
-      // Native notification
-      showNotification("Focus Completed!", "Great job! Your focus study session is complete. Time for a break!");
-      
-      switchPomoMode('short');
-    } else {
-      showNotification("Break Completed!", "Ready to get back to studying? Let's focus!");
-      switchPomoMode('work');
-    }
-    
-    updateDashboardStats();
-  }
-
-  function showNotification(title, body) {
-    if (isNotificationPermissionGranted()) {
-      try {
-        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-          navigator.serviceWorker.ready.then(registration => {
-            registration.showNotification(title, {
-              body: body,
-              icon: 'logo.png',
-              badge: 'logo.png',
-              vibrate: [200, 100, 200]
-            });
-          });
-        } else {
-          new window.Notification(title, {
-            body: body,
-            icon: 'logo.png'
-          });
-        }
-      } catch (e) {
-        console.warn('Failed to send notification:', e);
-      }
-    }
-    // Also display in-app toast
-    showToast(`${title}: ${body}`, 'info');
-  }
-
-  // Recurring notifications setup for to-do items by priority
-
-  // Setup recurring notifications for to-do items by priority
-  function initTodoReminders() {
-    // High priority: every 2 minutes
-    setInterval(() => {
-      sendTodoReminderNotification('high');
-    }, 2 * 60 * 1000);
-
-    // Medium priority: every 7 minutes
-    setInterval(() => {
-      sendTodoReminderNotification('medium');
-    }, 7 * 60 * 1000);
-
-    // Low priority: every 15 minutes
-    setInterval(() => {
-      sendTodoReminderNotification('low');
-    }, 15 * 60 * 1000);
-  }
-
-  function sendTodoReminderNotification(priority) {
-    if (!state || !state.todos) return;
-    const pending = state.todos.filter(t => !t.completed && t.priority === priority);
-    if (pending.length === 0) return;
-
-    const labelMap = { high: 'High', medium: 'Medium', low: 'Low' };
-    const priorityLabel = labelMap[priority];
-    const count = pending.length;
-    const names = pending.slice(0, 3).map(t => t.name).join(', ');
-    const extra = count > 3 ? ` and ${count - 3} more` : '';
-
-    const title = `${priorityLabel} Priority Tasks Reminder`;
-    const body = `You have ${count} pending ${priorityLabel.toLowerCase()} priority task(s): ${names}${extra}.`;
-
-    if (isNotificationPermissionGranted()) {
-      try {
-        new window.Notification(title, {
-          body: body,
-          icon: 'logo.png'
-        });
-      } catch (e) {
-        console.warn('Failed to send task reminder notification:', e);
-      }
-    }
-
-    const toastType = priority === 'high' ? 'error' : (priority === 'medium' ? 'warning' : 'info');
-    showToast(`Reminder: ${body}`, toastType);
-  }
-
-  function switchPomoMode(mode) {
-    pausePomo();
-    pomoCurrentMode = mode;
-    pomoTimeLeft = pomoDurations[mode];
-    
-    const labelText = pomoModeTitles[mode];
-    if (pomoLabel) pomoLabel.textContent = labelText;
-    if (dashPomoLabel) dashPomoLabel.textContent = labelText;
-    
-    // Update active visual tags across all selectors
-    document.querySelectorAll('.pomo-modes-select span').forEach(span => {
-      span.classList.toggle('active', span.dataset.mode === mode);
-    });
-
-    updatePomoDisplay();
-  }
-
-  // Listeners for sidebar timer
-  if (pomoPlayBtn) {
-    pomoPlayBtn.addEventListener('click', () => {
-      if (pomoIsRunning) {
-        pausePomo();
-      } else {
-        startPomo();
-      }
+  const btnRefreshQuote = document.getElementById('btn-refresh-quote');
+  if (btnRefreshQuote) {
+    btnRefreshQuote.addEventListener('click', () => {
+      const current = document.getElementById('dash-quote-text')?.textContent?.replace(/^"|"$/g, '') || '';
+      const newQuote = getRandomQuote(current);
+      renderDailyQuote(newQuote);
+      btnRefreshQuote.innerHTML = '<i class="fa-solid fa-check"></i> Refreshed!';
+      setTimeout(() => {
+        btnRefreshQuote.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Refresh';
+      }, 1500);
     });
   }
 
-  if (pomoResetBtn) {
-    pomoResetBtn.addEventListener('click', resetPomo);
-  }
-
-  // Listeners for dashboard timer (mobile)
-  if (dashPomoPlayBtn) {
-    dashPomoPlayBtn.addEventListener('click', () => {
-      if (pomoIsRunning) {
-        pausePomo();
-      } else {
-        startPomo();
-      }
-    });
-  }
-
-  if (dashPomoResetBtn) {
-    dashPomoResetBtn.addEventListener('click', resetPomo);
-  }
-
-  document.querySelectorAll('.pomo-modes-select span').forEach(span => {
-    span.addEventListener('click', (e) => {
-      switchPomoMode(e.target.dataset.mode);
-    });
-  });
-
-  updatePomoDisplay(); // Init display
   initTodoReminders(); // Start task reminder checks
 
   // ==========================================================================
