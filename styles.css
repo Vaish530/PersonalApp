@@ -3903,6 +3903,8 @@ h1, h2, h3, h4, h5 {
   width: 100%;
   position: relative;
   overflow: hidden;
+  /* Force text color to always use the theme primary — buttons reset color by default */
+  color: var(--text-primary) !important;
 }
 
 .acadexa-hub-card::before {
@@ -3962,6 +3964,7 @@ h1, h2, h3, h4, h5 {
   font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: -0.3px;
+  color: var(--text-primary);
 }
 
 .hub-card-body p {

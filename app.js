@@ -1159,9 +1159,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateDashboardStats() {
     // Set greeting and date
     const hours = new Date().getHours();
-    let greeting = "Good morning, Scholar!";
-    if (hours >= 12 && hours < 17) greeting = "Good afternoon, Scholar!";
-    else if (hours >= 17) greeting = "Good evening, Scholar!";
+    let greeting = "Good morning, Vaishnavi!";
+    if (hours >= 12 && hours < 17) greeting = "Good afternoon, Vaishnavi!";
+    else if (hours >= 17) greeting = "Good evening, Vaishnavi!";
     document.getElementById('greeting').textContent = greeting;
 
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
