@@ -103,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentUser = null;
   let firestoreUnsubscribe = null;
   let authMode = 'login'; // 'login' or 'register'
+  let isFirstAuthCheck = true;
 
   function loadState() {
     try {
@@ -350,6 +351,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("User logged in:", user.email);
         updateAuthUI(true, user.email);
         
+        if (!isFirstAuthCheck) {
+          showNotification("Synchronized 🎉", `Your workspace is now synced under ${user.email}`);
+        }
+        
         if (firestoreUnsubscribe) firestoreUnsubscribe();
         firestoreUnsubscribe = window.firebaseDb.collection('users').doc(user.uid).onSnapshot(
           (doc) => {
@@ -375,6 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         requestFCMToken(user.uid);
       } else {
+        const wasLoggedIn = (currentUser !== null);
         currentUser = null;
         if (firestoreUnsubscribe) {
           firestoreUnsubscribe();
@@ -383,7 +389,12 @@ document.addEventListener('DOMContentLoaded', () => {
         updateAuthUI(false);
         state = loadState();
         updateAllPanes();
+        
+        if (!isFirstAuthCheck && wasLoggedIn) {
+          showNotification("Logged Out", "Synchronization stopped. Using local mode.");
+        }
       }
+      isFirstAuthCheck = false;
     });
   }
 
@@ -1181,6 +1192,8 @@ document.addEventListener('DOMContentLoaded', () => {
     saveState();
     inputTaskName.value = '';
     
+    showNotification("Task Created", `"${taskName}" has been added with ${selectedTodoPriority} priority.`);
+    
     renderTodoList();
     updateDashboardStats();
   });
@@ -1227,6 +1240,11 @@ document.addEventListener('DOMContentLoaded', () => {
           if (targetTask) {
             targetTask.completed = !targetTask.completed;
             saveState();
+            
+            if (targetTask.completed) {
+              showNotification("Task Completed 🎉", `"${targetTask.name}" has been checked off!`);
+            }
+            
             renderTodoList();
             updateDashboardStats();
           }
@@ -2150,6 +2168,12 @@ document.addEventListener('DOMContentLoaded', () => {
         landingScene.classList.add('fly-out');
       }
       
+      // Play fly-out landing hero card animation
+      const landingHeroCard = document.querySelector('.landing-hero-card');
+      if (landingHeroCard) {
+        landingHeroCard.classList.add('fly-out');
+      }
+      
       // 2. Play slide up landing screen
       if (landingScreen) {
         landingScreen.classList.add('fade-out');
@@ -2183,6 +2207,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (landingScene) {
         landingScene.classList.remove('fly-out');
+      }
+      const landingHeroCard = document.querySelector('.landing-hero-card');
+      if (landingHeroCard) {
+        landingHeroCard.classList.remove('fly-out');
       }
       
       // Force reset stack transform variables
