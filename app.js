@@ -1880,9 +1880,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const totalMarks = (parseFloat(cieAvg) + otherVal).toFixed(1);
 
       const totalUnits = subject.units || 5;
+      if (!subject.unitList) {
+        subject.unitList = Array.from({ length: totalUnits }, (_, idx) => `U${idx + 1}`);
+      }
+      
       const completedUnits = subject.completedUnits || [];
       const completedCount = completedUnits.length;
-      const progressPercent = totalUnits > 0 ? Math.round((completedCount / totalUnits) * 100) : 0;
+      const totalUnitsCount = subject.unitList.length;
+      const progressPercent = totalUnitsCount > 0 ? Math.round((completedCount / totalUnitsCount) * 100) : 0;
 
       const card = document.createElement('div');
       card.className = 'tracking-card clay-card';
@@ -1890,7 +1895,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="tracking-card-header">
           <div>
             <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800;">${escapeHTML(subject.name)}</h3>
-            <span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 700;">Units: ${subject.units}</span>
+            <span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 700;">Units: ${totalUnitsCount}</span>
           </div>
           <button class="clay-btn danger icon-btn delete-subject-btn" data-id="${subject.id}" style="width: 32px; height: 32px; border-radius: 10px;" title="Delete Subject">
             <i class="fa-solid fa-trash"></i>
@@ -1915,22 +1920,32 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="tracking-units-progress" style="margin-top: 10px; margin-bottom: 5px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
             <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-secondary);">Syllabus Progress:</span>
-            <span class="progress-percent-label" style="font-size: 0.78rem; font-weight: 800; color: var(--accent);">${completedCount}/${totalUnits} (${progressPercent}%)</span>
+            <span class="progress-percent-label" style="font-size: 0.78rem; font-weight: 800; color: var(--accent);">${completedCount}/${totalUnitsCount} (${progressPercent}%)</span>
           </div>
           <div class="clay-progress-bar" style="height: 6px; margin-bottom: 10px; border-radius: 3px;">
             <div class="progress-fill units-progress-fill" style="width: ${progressPercent}%; height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.3s ease;"></div>
           </div>
-          <div class="units-checkboxes" style="display: flex; gap: 8px; flex-wrap: wrap;">
-            ${Array.from({ length: totalUnits }, (_, idx) => {
-              const unitNum = idx + 1;
-              const isChecked = completedUnits.includes(unitNum) ? 'checked' : '';
+          <div class="units-checkboxes" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            ${subject.unitList.map(unitName => {
+              const match = typeof unitName === 'string' ? unitName.match(/^U(\d+)$/i) : null;
+              const numericVal = match ? parseInt(match[1]) : null;
+              const isChecked = completedUnits.includes(unitName) || (numericVal !== null && completedUnits.includes(numericVal)) ? 'checked' : '';
               return `
-                <label class="unit-checkbox-label" style="display: flex; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: 700; cursor: pointer; user-select: none;">
-                  <input type="checkbox" class="unit-checkbox" data-id="${subject.id}" data-unit="${unitNum}" ${isChecked} style="accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer;">
-                  <span>U${unitNum}</span>
+                <label class="unit-checkbox-label" style="display: flex; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: 700; cursor: pointer; user-select: none; padding: 4px 8px; background: rgba(0,0,0,0.03); border-radius: 6px; border: 1px solid var(--border-color);">
+                  <input type="checkbox" class="unit-checkbox" data-id="${subject.id}" data-unit="${unitName}" ${isChecked} style="accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer;">
+                  <span>${escapeHTML(String(unitName))}</span>
+                  <span class="btn-remove-unit" data-id="${subject.id}" data-unit="${unitName}" style="margin-left: 4px; color: #ff4d4d; cursor: pointer; font-size: 0.85rem; font-weight: 800; display: inline-block; padding: 0 2px;" title="Remove Unit">&times;</span>
                 </label>
               `;
             }).join('')}
+            
+            <!-- Inline add unit form -->
+            <div style="display: flex; align-items: center; gap: 4px; margin-top: 4px;">
+              <input type="text" class="add-custom-unit-input clay-input" placeholder="e.g. U6" style="width: 60px; height: 26px; padding: 2px 6px; font-size: 0.75rem; border-radius: 6px; margin: 0;">
+              <button class="clay-btn primary small-btn btn-add-custom-unit" data-id="${subject.id}" style="padding: 2px 6px; font-size: 0.7rem; border-radius: 6px; width: auto; height: 26px; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-plus"></i> Unit
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1986,29 +2001,97 @@ document.addEventListener('DOMContentLoaded', () => {
       cie2Input.addEventListener('input', updateValues);
       otherInput.addEventListener('input', updateValues);
 
+      // Add Custom/Random Unit listener
+      const btnAddCustomUnit = card.querySelector('.btn-add-custom-unit');
+      const addCustomUnitInput = card.querySelector('.add-custom-unit-input');
+      
+      if (btnAddCustomUnit && addCustomUnitInput) {
+        btnAddCustomUnit.addEventListener('click', () => {
+          let unitName = addCustomUnitInput.value.trim();
+          subject.unitList = subject.unitList || [];
+          
+          if (!unitName) {
+            // Find next sequential unit U[N] where N is not in the list
+            let nextIndex = subject.unitList.length + 1;
+            while (subject.unitList.includes(`U${nextIndex}`)) {
+              nextIndex++;
+            }
+            unitName = `U${nextIndex}`;
+          }
+          
+          if (subject.unitList.includes(unitName)) {
+            showToast(`Unit "${unitName}" already exists!`, 'warning');
+            return;
+          }
+          
+          subject.unitList.push(unitName);
+          subject.units = subject.unitList.length;
+          saveState();
+          renderSubjectTracking();
+          updateDashboardStats();
+          showNotification("Unit Added ➕", `${subject.name}: added custom unit "${unitName}"`);
+        });
+
+        addCustomUnitInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            btnAddCustomUnit.click();
+          }
+        });
+      }
+
+      // Remove Unit listener
+      card.querySelectorAll('.btn-remove-unit').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const unitName = e.currentTarget.dataset.unit;
+          
+          subject.unitList = (subject.unitList || []).filter(u => u !== unitName);
+          subject.completedUnits = (subject.completedUnits || []).filter(u => u !== unitName);
+          
+          const match = typeof unitName === 'string' ? unitName.match(/^U(\d+)$/i) : null;
+          if (match) {
+            const numericVal = parseInt(match[1]);
+            subject.completedUnits = subject.completedUnits.filter(u => u !== numericVal);
+          }
+          
+          subject.units = subject.unitList.length;
+          saveState();
+          renderSubjectTracking();
+          updateDashboardStats();
+          showNotification("Unit Removed ➖", `${subject.name}: removed unit "${unitName}"`);
+        });
+      });
+
       // Unit Checkboxes click listeners
       card.querySelectorAll('.unit-checkbox').forEach(cb => {
         cb.addEventListener('change', (e) => {
-          const unitNum = parseInt(e.target.dataset.unit);
+          const unitVal = e.target.dataset.unit;
+          const match = typeof unitVal === 'string' ? unitVal.match(/^U(\d+)$/i) : null;
+          const numericVal = match ? parseInt(match[1]) : null;
+          
           subject.completedUnits = subject.completedUnits || [];
+          
           if (e.target.checked) {
-            if (!subject.completedUnits.includes(unitNum)) {
-              subject.completedUnits.push(unitNum);
+            if (numericVal !== null) {
+              if (!subject.completedUnits.includes(numericVal)) subject.completedUnits.push(numericVal);
+            } else {
+              if (!subject.completedUnits.includes(unitVal)) subject.completedUnits.push(unitVal);
             }
           } else {
-            subject.completedUnits = subject.completedUnits.filter(u => u !== unitNum);
+            subject.completedUnits = subject.completedUnits.filter(u => u !== unitVal && u !== numericVal);
           }
 
           saveState();
 
-          const totalUnits = subject.units || 5;
+          const totalUnitsCount = subject.unitList.length;
           const completedCount = subject.completedUnits.length;
-          const progressPercent = totalUnits > 0 ? Math.round((completedCount / totalUnits) * 100) : 0;
+          const progressPercent = totalUnitsCount > 0 ? Math.round((completedCount / totalUnitsCount) * 100) : 0;
 
-          card.querySelector('.progress-percent-label').textContent = `${completedCount}/${totalUnits} (${progressPercent}%)`;
+          card.querySelector('.progress-percent-label').textContent = `${completedCount}/${totalUnitsCount} (${progressPercent}%)`;
           card.querySelector('.units-progress-fill').style.width = `${progressPercent}%`;
 
-          showNotification("Progress Updated 📈", `${subject.name}: Unit ${unitNum} ${e.target.checked ? 'completed' : 'uncompleted'}.`);
+          showNotification("Progress Updated 📈", `${subject.name}: "${unitVal}" ${e.target.checked ? 'completed' : 'uncompleted'}.`);
         });
       });
 

@@ -37,7 +37,7 @@ if (messaging) {
   });
 }
 
-const CACHE_NAME = 'hubspace-cache-v21';
+const CACHE_NAME = 'hubspace-cache-v22';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
