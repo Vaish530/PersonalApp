@@ -1974,7 +1974,7 @@ h1, h2, h3, h4, h5 {
   position: relative;
 }
 .sticky-note:hover {
-  transform: translateY(-5px) scale(1.02) rotate(1deg);
+  transform: translateY(-5px) scale(1.02);
   box-shadow: 6px 10px 18px rgba(0, 0, 0, 0.2);
 }
 .sticky-note.pinned {
@@ -3107,9 +3107,9 @@ h1, h2, h3, h4, h5 {
   pointer-events: none;
 }
 
-/* Scattered rotation values */
+/* Scattered rotation values disabled for neat ordered alignment */
 .sticky-note {
-  transform: rotate(var(--rot, 0deg));
+  transform: none !important;
 }
 
 /* ==========================================================================
@@ -3172,13 +3172,13 @@ h1, h2, h3, h4, h5 {
 
 /* Sticky note: radiant colored border glow on hover — no scale, no zoom */
 .sticky-note:hover {
-  transform: rotate(var(--rot, 0deg)) !important;
+  transform: translateY(-4px) !important;
   box-shadow: 0 0 0 2.5px var(--note-glow, rgba(0,0,0,0.2)), 0 8px 24px var(--note-glow, rgba(0,0,0,0.12)), inset -2px -2px 6px rgba(0,0,0,0.08) !important;
   z-index: 5;
 }
 
 .sticky-note:active, .sticky-note.active {
-  transform: rotate(var(--rot, 0deg)) !important;
+  transform: none !important;
   box-shadow: 0 0 0 3px var(--note-glow, rgba(0,0,0,0.25)), 0 4px 12px var(--note-glow, rgba(0,0,0,0.1)), inset -2px -2px 6px rgba(0,0,0,0.08) !important;
   z-index: 10;
 }

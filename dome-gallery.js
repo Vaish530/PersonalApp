@@ -23,7 +23,7 @@ window.DomeGallery = (function () {
     { id: 'notes',     name: 'Sticky Notes',     color: 'tangerine', icon: 'fa-note-sticky',   actionText: 'Open Whiteboard' },
     { id: 'gate',      name: 'GATE Prep',        color: 'sun',       icon: 'fa-graduation-cap',actionText: 'Track Syllabus'  },
     { id: 'documents', name: 'Document Vault',   color: 'seagrass',  icon: 'fa-folder-open',   actionText: 'Open Vault'      },
-    { id: 'calendar',  name: 'Academic Calendar',color: 'cerulean',  icon: 'fa-calendar-days', actionText: 'Open Calendar'   },
+    { id: 'calendar',  name: 'Calendar',         color: 'cerulean',  icon: 'fa-calendar-days', actionText: 'Open Calendar'   },
   ];
 
   /*

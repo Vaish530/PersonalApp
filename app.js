@@ -865,6 +865,17 @@ document.addEventListener('DOMContentLoaded', () => {
     return quote;
   }
 
+  // Pick a random quote different from current one
+  function getRandomQuote(currentText) {
+    let quote;
+    do {
+      quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    } while (quote.text === currentText);
+    const todaySeed = getTodayDateSeed();
+    localStorage.setItem('hubspace_daily_quote', JSON.stringify({ date: todaySeed, quote }));
+    return quote;
+  }
+
   function getQuoteColorTheme(text) {
     const textHash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const hue = textHash % 360;
@@ -1774,7 +1785,21 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnBackFromTracking) btnBackFromTracking.addEventListener('click', goBackToAcadexaHub);
 
   const btnBackFromCalendar = document.getElementById('btn-back-from-calendar');
-  if (btnBackFromCalendar) btnBackFromCalendar.addEventListener('click', goBackToAcadexaHub);
+  if (btnBackFromCalendar) {
+    btnBackFromCalendar.addEventListener('click', () => {
+      panes.forEach(pane => pane.classList.remove('active'));
+      const dashPane = document.getElementById('pane-dashboard');
+      if (dashPane) dashPane.classList.add('active');
+
+      const dashBtn = document.getElementById('btn-dashboard');
+      if (dashBtn) {
+        navItems.forEach(n => n.classList.remove('active'));
+        dashBtn.classList.add('active');
+        positionNavBlob(dashBtn);
+      }
+      refreshDomeGallery();
+    });
+  }
 
   const btnBackFromFolder = document.getElementById('btn-back-from-folder');
   if (btnBackFromFolder) btnBackFromFolder.addEventListener('click', goBackToAcadexaHub);
