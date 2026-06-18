@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css?v=22.0">
+  <link rel="stylesheet" href="styles.css?v=23.0">
 
   <!-- App Logo / Favicon -->
   <link rel="icon" type="image/png" href="logo.png">
@@ -705,6 +705,7 @@
         <input type="text" id="modal-note-title" placeholder="Title your note..." class="clay-input note-title-field">
         <button class="close-btn" id="btn-close-note-modal">&times;</button>
       </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
         <div class="form-group">
           <!-- Formatting toolbar -->
           <div class="note-formatting-bar" style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center; background: rgba(0, 0, 0, 0.03); padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border-color); flex-wrap: wrap;">
@@ -733,7 +734,7 @@
           </div>
         </div>
       </div>
-      <div class="modal-footer" style="display: flex; justify-content: space-between; width: 100%;">
+      <div class="modal-footer" style="display: flex; justify-content: space-between; width: 100%; border-top: 1px dashed rgba(0,0,0,0.08); padding-top: 15px; margin-top: 10px;">
         <button class="clay-btn danger" id="modal-btn-delete"><i class="fa-solid fa-trash"></i> Delete</button>
         <div style="display: flex; gap: 10px;">
           <button class="clay-btn" id="modal-btn-cancel">Cancel</button>
@@ -851,8 +852,8 @@
   <script src="firebase-init.js?v=15.0"></script>
 
   <!-- Application logic scripts -->
-  <script src="dome-gallery.js?v=22.0"></script>
-  <script src="app.js?v=22.0"></script>
+  <script src="dome-gallery.js?v=23.0"></script>
+  <script src="app.js?v=23.0"></script>
 
 
 </body>
