@@ -978,6 +978,8 @@ h1, h2, h3, h4, h5 {
   flex-direction: column;
   gap: 12px;
   padding-right: 5px;
+  min-height: 340px;
+  max-height: 480px;
 }
 
 .task-card {
@@ -1959,7 +1961,7 @@ h1, h2, h3, h4, h5 {
 }
 .sticky-note {
   border-radius: 16px;
-  padding: 16px;
+  padding: 24px 16px 16px 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1987,9 +1989,17 @@ h1, h2, h3, h4, h5 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.sticky-note-title span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  margin-right: 6px;
+}
+.sticky-note-title i {
+  flex-shrink: 0;
 }
 .sticky-note-body {
   font-size: 0.8rem;
@@ -2236,11 +2246,28 @@ h1, h2, h3, h4, h5 {
     gap: 12px;
   }
   .top-header {
-    padding: 12px 20px;
-    border-radius: 20px;
+    padding: 10px 16px;
+    border-radius: 16px;
+    gap: 10px;
   }
   .welcome-text h1 {
-    font-size: 1.25rem;
+    font-size: 0.95rem;
+    line-height: 1.2;
+  }
+  .welcome-text p {
+    font-size: 0.68rem;
+    margin-top: 1px;
+  }
+  .top-header .header-actions {
+    gap: 6px;
+  }
+  .top-header .header-actions button {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 10px !important;
+  }
+  .top-header .header-actions button i {
+    font-size: 0.85rem !important;
   }
   .panes-container {
     height: auto;
@@ -2335,10 +2362,10 @@ h1, h2, h3, h4, h5 {
   }
   .sticky-note {
     transform: none !important;
-    padding: 12px !important;
+    padding: 20px 12px 12px 12px !important;
   }
   .sticky-pin {
-    top: -6px !important;
+    top: 6px !important;
     font-size: 1rem !important;
   }
   .sticky-note-title {
@@ -3070,7 +3097,7 @@ h1, h2, h3, h4, h5 {
 /* Pushpin detailing at top center of stickies */
 .sticky-pin {
   position: absolute;
-  top: -8px;
+  top: 6px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 1.2rem;
@@ -4167,3 +4194,12 @@ h1, h2, h3, h4, h5 {
 .sidebar.collapsed .sidebar-quote-widget {
   display: none;
 }
+
+/* Contenteditable empty placeholder formatting */
+.note-textarea[contenteditable="true"]:empty:before {
+  content: attr(placeholder);
+  color: var(--text-secondary);
+  opacity: 0.65;
+  cursor: text;
+}
+

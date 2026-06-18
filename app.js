@@ -622,6 +622,9 @@ document.addEventListener('DOMContentLoaded', () => {
     state.theme = state.theme === 'light' ? 'dark' : 'light';
     saveState();
     applyTheme();
+    // Re-render quote to dynamically adjust HSL background/text colors for light/dark theme
+    const quote = getDailyQuote();
+    if (quote) renderDailyQuote(quote);
   });
 
   // Accent selector buttons
@@ -819,7 +822,22 @@ document.addEventListener('DOMContentLoaded', () => {
     { text: "Focus on your goal. Don't look in any direction but ahead.", author: "Anonymous" },
     { text: "Every day is a new beginning. Take a deep breath, smile, and start again.", author: "Anonymous" },
     { text: "You are capable of more than you know.", author: "E.O. Wilson" },
-    { text: "Hard work beats talent when talent doesn't work hard.", author: "Tim Notke" }
+    { text: "Hard work beats talent when talent doesn't work hard.", author: "Tim Notke" },
+    { text: "You have a right to perform your prescribed duties, but you are not entitled to the fruits of your actions.", author: "Bhagavad Gita" },
+    { text: "A person can rise through the efforts of their own mind; or draw themselves down. For each person is their own friend or enemy.", author: "Bhagavad Gita" },
+    { text: "Change is the law of the universe. You can be a millionaire, or a pauper in an instant.", author: "Lord Krishna" },
+    { text: "The mind is restless and difficult to control, but it can be conquered by practice and detachment.", author: "Bhagavad Gita" },
+    { text: "Whatever action is performed by a great person, common men follow in their footsteps. Whatever standards they set, all the world pursues.", author: "Bhagavad Gita" },
+    { text: "We are kept from our goal not by obstacles, but by a clear path to a lesser goal.", author: "Bhagavad Gita" },
+    { text: "Man is made by his belief. As he believes, so he is.", author: "Bhagavad Gita" },
+    { text: "There is neither this world, nor the world beyond, nor happiness for the one who doubts.", author: "Bhagavad Gita" },
+    { text: "Calmness, gentleness, silence, self-restraint, and purity: these are the disciplines of the mind.", author: "Bhagavad Gita" },
+    { text: "Perform your obligatory duty, for action is indeed better than inaction.", author: "Bhagavad Gita" },
+    { text: "Do your work with the welfare of others always in mind.", author: "Lord Krishna" },
+    { text: "The only way you can conquer me is through love, and there I am gladly conquered.", author: "Lord Krishna" },
+    { text: "Why do you worry without cause? Whom do you fear without reason? The soul is neither born, nor does it die.", author: "Bhagavad Gita" },
+    { text: "Set your heart on doing your work, but never on its reward.", author: "Bhagavad Gita" },
+    { text: "When meditation is mastered, the mind is unwavering like the flame of a lamp in a windless place.", author: "Bhagavad Gita" }
   ];
 
   // Get today's date as a numeric seed (YYYYMMDD)
@@ -847,15 +865,21 @@ document.addEventListener('DOMContentLoaded', () => {
     return quote;
   }
 
-  // Pick a random quote different from current one
-  function getRandomQuote(currentText) {
-    let quote;
-    do {
-      quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-    } while (quote.text === currentText);
-    const todaySeed = getTodayDateSeed();
-    localStorage.setItem('hubspace_daily_quote', JSON.stringify({ date: todaySeed, quote }));
-    return quote;
+  function getQuoteColorTheme(text) {
+    const textHash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const hue = textHash % 360;
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    
+    const saturation = isDark ? 45 : 65;
+    const lightnessBg = isDark ? 15 : 93;
+    const lightnessBorder = isDark ? 65 : 45;
+    const lightnessText = isDark ? 92 : 25;
+    
+    return {
+      bg: `hsla(${hue}, ${saturation}%, ${lightnessBg}%, ${isDark ? 0.35 : 0.65})`,
+      border: `hsl(${hue}, ${saturation}%, ${lightnessBorder}%)`,
+      text: `hsl(${hue}, ${saturation}%, ${lightnessText}%)`
+    };
   }
 
   function renderDailyQuote(quote) {
@@ -866,12 +890,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarAuthor = document.getElementById('sidebar-quote-author');
 
     const today = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+    const colors = getQuoteColorTheme(quote.text);
 
     if (dashText) {
       // Fade animation
       dashText.style.opacity = '0';
       setTimeout(() => {
         dashText.textContent = `"${quote.text}"`;
+        dashText.style.background = colors.bg;
+        dashText.style.borderLeftColor = colors.border;
+        dashText.style.color = colors.text;
         dashText.style.opacity = '1';
       }, 250);
     }
@@ -1028,6 +1056,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Call 3D Dome Gallery library initialization with overview dashboard data
     window.DomeGallery.init(dashboardData, (selectedCardId) => {
       // Directs navigation dynamically based on which overview card was clicked
+      if (selectedCardId === 'calendar') {
+        openAcadexaSubPane('calendar');
+        return;
+      }
       if (selectedCardId === 'acadexa') {
         // Navigate to Acadexa hub first
         const acadexaBtn = document.getElementById('btn-acadexa');
@@ -1361,7 +1393,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span>${escapeHTML(note.title)}</span>
           ${note.pinned ? '<i class="fa-solid fa-star" style="color: #ffd166;"></i>' : ''}
         </div>
-        <div class="sticky-note-body">${escapeHTML(bodyPreview)}</div>
+        <div class="sticky-note-body">${bodyPreview}</div>
         <div class="sticky-note-footer" style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:6px;">
           <span style="font-size:0.7rem; opacity:0.8;">${dateStr}</span>
           <div style="display:flex; gap:5px;">
@@ -1414,7 +1446,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     currentEditingNoteId = noteId;
     modalNoteTitle.value = note.title;
-    modalNoteBody.value = note.body;
+    modalNoteBody.innerHTML = note.body || '';
     tempNoteColor = note.color || 'sun';
     tempNotePinned = note.pinned || false;
     
@@ -1469,7 +1501,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const note = state.notes.find(n => n.id === currentEditingNoteId);
       if (note) {
         note.title = modalNoteTitle.value.trim() || 'Untitled Sticky';
-        note.body = modalNoteBody.value;
+        note.body = modalNoteBody.innerHTML;
         note.color = tempNoteColor;
         note.pinned = tempNotePinned;
         
@@ -1492,6 +1524,25 @@ document.addEventListener('DOMContentLoaded', () => {
         renderWhiteboard();
         updateDashboardStats();
       }
+    });
+  }
+
+  // Rich Text Note Editor formatting options
+  document.querySelectorAll('.format-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const command = btn.dataset.command;
+      document.execCommand(command, false, null);
+      modalNoteBody.focus();
+    });
+  });
+
+  const noteTextColorInput = document.getElementById('note-text-color-input');
+  if (noteTextColorInput) {
+    noteTextColorInput.addEventListener('input', (e) => {
+      const color = e.target.value;
+      document.execCommand('foreColor', false, color);
+      modalNoteBody.focus();
     });
   }
 

@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css?v=19.0">
+  <link rel="stylesheet" href="styles.css?v=20.0">
 
   <!-- App Logo / Favicon -->
   <link rel="icon" type="image/png" href="logo.png">
@@ -231,6 +231,24 @@
 
             <!-- Right panel: Progress metrics and dynamic widgets -->
             <div class="dash-right">
+              <!-- Daily Motivational Quote Card -->
+              <div class="daily-quote-card clay-card" id="daily-quote-card">
+                <div class="quote-card-header">
+                  <div class="quote-icon-bubble">
+                    <i class="fa-solid fa-quote-left"></i>
+                  </div>
+                  <span class="quote-label">Daily Motivation</span>
+                  <span class="quote-date" id="quote-date"></span>
+                </div>
+                <blockquote class="quote-text" id="dash-quote-text">Loading your daily inspiration...</blockquote>
+                <div class="quote-footer">
+                  <span class="quote-author" id="dash-quote-author"></span>
+                  <button class="clay-btn small-btn" id="btn-refresh-quote" title="Get a new quote">
+                    <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                  </button>
+                </div>
+              </div>
+
               <!-- Productivity rings -->
               <div class="stats-overview-card clay-card">
                 <h3>Hub Analytics</h3>
@@ -267,24 +285,6 @@
                     </div>
                     <span>Notes Written</span>
                   </div>
-                </div>
-              </div>
-
-              <!-- Daily Motivational Quote Card -->
-              <div class="daily-quote-card clay-card" id="daily-quote-card">
-                <div class="quote-card-header">
-                  <div class="quote-icon-bubble">
-                    <i class="fa-solid fa-quote-left"></i>
-                  </div>
-                  <span class="quote-label">Daily Motivation</span>
-                  <span class="quote-date" id="quote-date"></span>
-                </div>
-                <blockquote class="quote-text" id="dash-quote-text">Loading your daily inspiration...</blockquote>
-                <div class="quote-footer">
-                  <span class="quote-author" id="dash-quote-author"></span>
-                  <button class="clay-btn small-btn" id="btn-refresh-quote" title="Get a new quote">
-                    <i class="fa-solid fa-arrows-rotate"></i> Refresh
-                  </button>
                 </div>
               </div>
 
@@ -524,34 +524,6 @@
                 <i class="fa-solid fa-arrow-right"></i>
               </div>
             </button>
-
-            <!-- Card 2: Calendar -->
-            <button class="acadexa-hub-card clay-card" id="card-hub-calendar">
-              <div class="hub-card-icon" style="background: linear-gradient(135deg, #277da1 0%, #4d908e 100%);">
-                <i class="fa-solid fa-calendar-days"></i>
-              </div>
-              <div class="hub-card-body">
-                <h3>Academic Calendar</h3>
-                <p>Schedule exams, assignment deadlines, and key academic events on an interactive calendar.</p>
-              </div>
-              <div class="hub-card-arrow">
-                <i class="fa-solid fa-arrow-right"></i>
-              </div>
-            </button>
-
-            <!-- Card 3: Subjects Folder -->
-            <button class="acadexa-hub-card clay-card" id="card-hub-folder">
-              <div class="hub-card-icon" style="background: linear-gradient(135deg, #43aa8b 0%, #90be6d 100%);">
-                <i class="fa-solid fa-folder-open"></i>
-              </div>
-              <div class="hub-card-body">
-                <h3>Subjects File Vault</h3>
-                <p>Create subject folders and upload PDFs, documents, and images organised by topic.</p>
-              </div>
-              <div class="hub-card-arrow">
-                <i class="fa-solid fa-arrow-right"></i>
-              </div>
-            </button>
           </div>
         </section>
 
@@ -619,84 +591,7 @@
           </div>
         </section>
 
-        <!-- SUBJECTS FOLDER FILE MANAGER PANE -->
-        <section class="pane" id="pane-subjects-folder">
-          <!-- View 1: Grid of folders -->
-          <div id="subjects-folder-grid-view">
-            <div class="pane-header clay-card" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 20px;">
-              <div style="display: flex; align-items: center; gap: 14px;">
-                <button class="clay-btn icon-btn btn-back-to-hub" id="btn-back-from-folder" title="Back to Acadexa Hub" style="width:36px; height:36px; border-radius:11px; flex-shrink:0;">
-                  <i class="fa-solid fa-arrow-left"></i>
-                </button>
-                <div>
-                  <h2 style="margin: 0; font-size: 1.5rem; font-weight: 800;">Academic Subjects File Vault</h2>
-                  <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">Organize notes, textbooks, and diagrams inside subject folders synced to local storage.</p>
-                </div>
-              </div>
-              <button class="clay-btn primary" id="btn-create-subject-folder">
-                <i class="fa-solid fa-folder-plus"></i> Create Folder
-              </button>
-            </div>
-            <div class="folders-grid" id="folders-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px;">
-              <!-- Injected dynamically via JS -->
-            </div>
-          </div>
 
-          <!-- View 2: Detailed files inside a subject -->
-          <div id="subject-folder-files-view" style="display: none;">
-            <div class="pane-header clay-card" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; padding: 20px;">
-              <div style="display: flex; align-items: center; gap: 15px; justify-content: space-between; width: 100%;">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                  <button class="clay-btn icon-btn" id="btn-back-to-folders" title="Back to Folders" style="width:34px; height:34px; border-radius:10px;">
-                    <i class="fa-solid fa-arrow-left"></i>
-                  </button>
-                  <h2 id="active-folder-title" style="margin: 0; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-folder-open" style="color: var(--accent);"></i> <span>Subject Folder</span>
-                  </h2>
-                </div>
-                <!-- Manual upload trigger -->
-                <button class="clay-btn primary small-btn" id="btn-trigger-upload-input">
-                  <i class="fa-solid fa-upload"></i> Upload File
-                </button>
-              </div>
-              
-              <!-- Drag and drop zone -->
-              <div class="upload-dropzone clay-card" id="upload-dropzone" style="border: 2px dashed rgba(var(--accent-rgb, 3, 4, 94), 0.25); background: rgba(var(--accent-rgb, 3, 4, 94), 0.02); text-align: center; padding: 30px; border-radius: 18px; cursor: pointer; transition: all 0.3s ease;">
-                <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.2rem; color: var(--accent); margin-bottom: 10px;"></i>
-                <h4 style="margin: 0; font-weight: 700; font-size: 0.95rem;">Drag and drop study files here</h4>
-                <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">Supports PDFs, Documents (docx), and Images</p>
-                <input type="file" id="input-subject-file-upload" multiple style="display: none;">
-              </div>
-            </div>
-
-            <!-- Categories Grid -->
-            <div class="file-categories-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-              <!-- Category: PDFs -->
-              <div class="category-card clay-card" style="padding: 20px; min-height: 250px;">
-                <h3 style="margin-top:0; display:flex; align-items:center; gap:8px; font-weight:800; border-bottom:1px solid rgba(0,0,0,0.05); padding-bottom:8px;"><i class="fa-solid fa-file-pdf" style="color: #f94144;"></i> PDFs</h3>
-                <div class="category-files-list" id="files-list-pdf" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
-                  <!-- Injected dynamically -->
-                </div>
-              </div>
-
-              <!-- Category: Documents -->
-              <div class="category-card clay-card" style="padding: 20px; min-height: 250px;">
-                <h3 style="margin-top:0; display:flex; align-items:center; gap:8px; font-weight:800; border-bottom:1px solid rgba(0,0,0,0.05); padding-bottom:8px;"><i class="fa-solid fa-file-word" style="color: #277da1;"></i> Documents</h3>
-                <div class="category-files-list" id="files-list-docx" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
-                  <!-- Injected dynamically -->
-                </div>
-              </div>
-
-              <!-- Category: Images -->
-              <div class="category-card clay-card" style="padding: 20px; min-height: 250px;">
-                <h3 style="margin-top:0; display:flex; align-items:center; gap:8px; font-weight:800; border-bottom:1px solid rgba(0,0,0,0.05); padding-bottom:8px;"><i class="fa-solid fa-file-image" style="color: #43aa8b;"></i> Images</h3>
-                <div class="category-files-list" id="files-list-image" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
-                  <!-- Injected dynamically -->
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
       </div>
     </main>
@@ -800,25 +695,7 @@
     </div>
   </div>
 
-  <!-- MODAL: CREATE SUBJECT FOLDER -->
-  <div class="modal-backdrop" id="modal-create-subject-folder-modal">
-    <div class="modal-content clay-card" style="max-width: 400px; width: 90%;">
-      <div class="modal-header">
-        <h3>Create Subject Folder</h3>
-        <button class="close-btn" id="btn-close-folder-modal">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label for="input-folder-subject-name">Subject Folder Name</label>
-          <input type="text" id="input-folder-subject-name" placeholder="e.g. Computer Networks, Web Tech" class="clay-input">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="clay-btn" id="btn-cancel-folder">Cancel</button>
-        <button class="clay-btn primary" id="btn-save-folder">Create Folder</button>
-      </div>
-    </div>
-  </div>
+
 
 
   <!-- MODAL: EDIT NOTE (Whiteboard Sticky Editor) -->
@@ -828,9 +705,18 @@
         <input type="text" id="modal-note-title" placeholder="Title your note..." class="clay-input note-title-field">
         <button class="close-btn" id="btn-close-note-modal">&times;</button>
       </div>
-      <div class="modal-body">
         <div class="form-group">
-          <textarea id="modal-note-body" placeholder="Write something beautiful..." class="clay-textarea note-textarea"></textarea>
+          <!-- Formatting toolbar -->
+          <div class="note-formatting-bar" style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center; background: rgba(0, 0, 0, 0.03); padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border-color); flex-wrap: wrap;">
+            <button type="button" class="clay-btn small-btn format-btn" data-command="bold" title="Bold" style="padding: 4px 8px; font-weight: 700; width: auto; height: auto; font-size: 0.75rem; border-radius: 6px;">B</button>
+            <button type="button" class="clay-btn small-btn format-btn" data-command="italic" title="Italic" style="padding: 4px 8px; font-style: italic; width: auto; height: auto; font-size: 0.75rem; border-radius: 6px;">I</button>
+            <button type="button" class="clay-btn small-btn format-btn" data-command="underline" title="Underline" style="padding: 4px 8px; text-decoration: underline; width: auto; height: auto; font-size: 0.75rem; border-radius: 6px;">U</button>
+            <div style="display: flex; align-items: center; gap: 6px; margin-left: 8px;">
+              <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary);">Color:</span>
+              <input type="color" id="note-text-color-input" title="Text Color" value="#000000" style="border: none; width: 22px; height: 22px; border-radius: 50%; padding: 0; background: transparent; cursor: pointer;">
+            </div>
+          </div>
+          <div id="modal-note-body" contenteditable="true" placeholder="Write something beautiful..." class="clay-textarea note-textarea" style="overflow-y: auto; min-height: 150px; padding: 12px; border-radius: 16px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-primary); outline: none;"></div>
         </div>
         <div class="editor-row" style="display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-top: 10px;">
           <div class="form-group" style="flex-grow: 1;">
@@ -965,8 +851,8 @@
   <script src="firebase-init.js?v=15.0"></script>
 
   <!-- Application logic scripts -->
-  <script src="dome-gallery.js?v=19.0"></script>
-  <script src="app.js?v=19.0"></script>
+  <script src="dome-gallery.js?v=20.0"></script>
+  <script src="app.js?v=20.0"></script>
 
 
 </body>
