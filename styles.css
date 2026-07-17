@@ -976,7 +976,7 @@ h1, h2, h3, h4, h5 {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   padding-right: 5px;
   min-height: 340px;
   max-height: 480px;
@@ -986,12 +986,14 @@ h1, h2, h3, h4, h5 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
-  border-radius: 18px;
+  padding: 10px 16px;
+  border-radius: 14px;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   box-shadow: var(--clay-btn-shadow), var(--clay-btn-inner);
   transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .task-card:hover {
@@ -1007,6 +1009,8 @@ h1, h2, h3, h4, h5 {
   display: flex;
   align-items: center;
   gap: 14px;
+  flex: 1;
+  min-width: 0;
 }
 
 /* Claymorphism Checkbox */
@@ -1023,6 +1027,7 @@ h1, h2, h3, h4, h5 {
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .task-card.completed .clay-checkbox {
@@ -1045,6 +1050,9 @@ h1, h2, h3, h4, h5 {
   font-size: 0.95rem;
   font-weight: 500;
   transition: text-decoration 0.2s ease;
+  word-break: break-word;
+  white-space: normal;
+  flex: 1;
 }
 
 .task-card.completed .task-text {
@@ -1056,6 +1064,7 @@ h1, h2, h3, h4, h5 {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .task-tag {

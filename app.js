@@ -1147,11 +1147,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.createElement('div');
         card.className = `dash-task-item ${task.priority}`;
         card.innerHTML = `
-          <div style="flex-grow:1;">
-            <div>${escapeHTML(task.name)}</div>
+          <div style="flex-grow:1; min-width:0; margin-right:8px;">
+            <div style="word-break:break-word; white-space:normal; font-weight:500;">${escapeHTML(task.name)}</div>
           </div>
-          <span class="task-tag priority-${task.priority}">${task.priority.toUpperCase()}</span>
+          <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+            <span class="task-tag priority-${task.priority}">${task.priority.toUpperCase()}</span>
+            <button class="clay-btn small-btn icon-btn dash-task-edit-btn" data-id="${task.id}" style="width:26px; height:26px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center;" title="Edit Task">
+              <i class="fa-solid fa-pen" style="font-size:0.7rem;"></i>
+            </button>
+          </div>
         `;
+
+        card.querySelector('.dash-task-edit-btn').addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const tId = e.currentTarget.dataset.id;
+          const targetTask = state.todos.find(t => t.id === tId);
+          if (targetTask) {
+            const newName = await customPrompt("Edit task description:", targetTask.name, "Edit Task");
+            if (newName !== null && newName.trim() !== "") {
+              targetTask.name = newName.trim();
+              saveState();
+              updateDashboardStats();
+              renderTodoList();
+            }
+          }
+        });
+
         urgentTasksContainer.appendChild(card);
       });
     } else {
